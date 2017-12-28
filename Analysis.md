@@ -44,9 +44,9 @@ Teacher-Course:tId,cId
 
 ***mongodb***
 
-Question:id(qId),type,cId,tId,body,ans,correct_ans,time
+Question:id(qId),type,cId,tId,body,abcd,ans,time,
 
-Comment:id,qId,aId(sId,tId),time,body
+Comment:id,qId,aT,aId(sId,tId),time,body
 
 Note:基本的思路是面向课程，及根据学生和老师的双向选择构建平台。学生和老师通过选择课程达成联系。
 <br>

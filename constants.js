@@ -8,5 +8,12 @@ export const ACC_T_Admin=13;
 /**
  * Basic info 2*
  */
-export const male=21;
-export const female=22;
+export const MALE=21;
+export const FEMALE=22;
+
+/**
+ *  question type
+ */
+export const SELECT=31;
+export const QA=32;
+
