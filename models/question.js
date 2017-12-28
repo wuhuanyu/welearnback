@@ -1,6 +1,6 @@
 const mongoose =require('mongoose');
-const ObjectID=mongoose.Objectid();
 import * as constants from '../constants';
+import findByFieldFactory from '../utils/commonquery';
 const QSchema=mongoose.Schema({
     type:Number,
     /**
@@ -23,7 +23,6 @@ const QSchema=mongoose.Schema({
 
 const Question= mongoose.model('question',QSchema,'questions');
 Question.checkedFields=['type','cId','tId','body','ans'];
-
 
 
 module.exports = Question;
