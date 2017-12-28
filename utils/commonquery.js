@@ -3,6 +3,13 @@
  */
 import * as models from '../models/models';
 const mongoose=require('mongoose');
+/**
+ * 
+ * @param {String} category 
+ * @param {Array} fields 
+ * @param {Object} sortOptions 
+ * @param {Number} limit 
+ */
 module.exports = (category, fields, sortOptions, limit) => (fieldVs) => {
       let model=mongoose.model(category);
       if(model){

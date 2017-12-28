@@ -15,14 +15,10 @@ const getErr = require('../utils/error');
  * Tested
  */
 router.post('', (req, res, next) => {
-    console.log(TAG);
-    console.log(req.app.locals.id);
-    console.log(JSON.stringify(req.body));
     /**
      * check fields ok
      */
     if (check(req.body, Question.checkedFields)) {
-        let { type, cId, tId, body, answer } = req.body;
         let newQ = new Question({
             type: req.body.type,
             cId: req.body.cId,
@@ -33,7 +29,7 @@ router.post('', (req, res, next) => {
         });
         newQ.save().then(
             (savedQ) => {
-                console.log(TAG + "savedOK" + JSON.stringify(savedQ))
+                console.log(TAG + "savedOK " + JSON.stringify(savedQ))
                 res.status(200).json({ msg: "Question posted successfully" });
             })
     }

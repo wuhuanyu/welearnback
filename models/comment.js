@@ -1,8 +1,8 @@
 const mongoose = require('mongoose');
 const CommentSchema = mongoose.Schema({
-    qId: Number,
-    aT: Number,
-    aId: Number,
+    qId: Number,//question
+    aT: Number,//authorType
+    aId: Number,//authorId
     time: Number,
     body: String,
 });
