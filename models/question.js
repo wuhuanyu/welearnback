@@ -2,7 +2,7 @@ const mongoose =require('mongoose');
 const ObjectID=mongoose.Objectid();
 import * as constants from '../constants';
 const QSchema=mongoose.Schema({
-    type:String,
+    type:Number,
     /**
      * course id
      * teacher id
@@ -13,7 +13,7 @@ const QSchema=mongoose.Schema({
     /**
      * 选择题abcd
      */
-    abcd:[],
+    // abcd:[],
     /**
      * 选择题正确答案,问答题正确答案
      */
@@ -22,5 +22,8 @@ const QSchema=mongoose.Schema({
 });
 
 const Question= mongoose.model('question',QSchema,'questions');
+Question.checkedFields=['type','cId','tId','body','ans'];
+
+
 
 module.exports = Question;
