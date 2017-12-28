@@ -6,6 +6,6 @@ const CommentSchema = mongoose.Schema({
     time: Number,
     body: String,
 });
-
 const Comment = mongoose.model('comment', CommentSchema, 'comments');
+Comment.checkedFields=['qId','aT','aId','body'];
 module.exports=Comment;
