@@ -1,15 +1,11 @@
-'use strict';
-module.exports = (sequelize, DataTypes) => {
-  var Stu = sequelize.define('Stu', {
-    name: DataTypes.STRING,
-    password: DataTypes.STRING,
-    gender: DataTypes.INTEGER
-  }, {
-    classMethods: {
-      associate: function(models) {
-        // associations can be defined here
-      }
+import sequelize from '../mysqlcon';
+const Sequelize=require('sequelize');
+const Stu=sequelize.define('stu',{
+    name:Sequelize.STRING,
+    password:Sequelize.STRING,
+    gender:{
+        type:Sequelize.ENUM,
+        values:[0,1]
     }
-  });
-  return Stu;
-};
+});
+
