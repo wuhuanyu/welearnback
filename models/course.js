@@ -11,4 +11,5 @@ const Course=sequelize.define('course',{
     }
 });
 
+Course.checkedFields=['name','desc'];
 export default Course;

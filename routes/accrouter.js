@@ -23,6 +23,7 @@ router.post('/stu', (req, res, next) => {
                 });
                 newStu.save().then(savedStu => {
                     res.status(200).json({
+                        id:savedStu.id,
                         msg: "SignUp Succesfully",
                     });
                 }).catch(e => next(getError(500, e.message)));
@@ -34,12 +35,14 @@ router.post('/stu', (req, res, next) => {
         next(getError(400, "Wrong format for Stu signup"));
     }
 });
+
 /**
  * update
  */
 router.put('/stu', (req, res, next) => {
-
 });
+
+
 
 
 module.exports=router;

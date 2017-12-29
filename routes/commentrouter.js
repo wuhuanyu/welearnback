@@ -54,5 +54,6 @@ router.get('', (req, res, next) => {
     } else {
         next(getErr(404, "No such field"));
     }
-})
-module.exports=router;
+});
+
+export default router;

@@ -49,7 +49,7 @@ app.use(function(req, res, next) {
 app.use(function(err, req, res, next) {
   console.log(err.code);
   res.status(err.code||500).json({
-    msg:err.msg,
+    msg:err.msg||err.message,
   })
   // set locals, only providing error in development
   // res.locals.message = err.message;

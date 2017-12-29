@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "start": "node ./bin/www",
+    "start": "nodemon --exec babel-node ./bin/www",
     "restart": "sequelize db:seed:undo:all && sequelize db:seed:all"
     
   },
