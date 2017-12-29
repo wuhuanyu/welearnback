@@ -9,7 +9,6 @@ var bodyParser = require('body-parser');
 
 var index = require('./routes/index');
 var users = require('./routes/users');
-const Qrouter=require('./routes/QRoute');
 var app = express();
 const mongoose=require('mongoose');
 

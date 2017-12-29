@@ -1,16 +1,23 @@
 const router = require('express').Router();
+const stuCheckedFields=['name','password','gender'];
+
 
 /**
- * signup
+ * student signup
  */
-router.post('', (req, res, next) => {
 
-
+router.post('/stu', (req, res, next) => {
+    let uBody=req.body;
+    let keys=Object.keys(uBody);
+    //check fields must have name,password,gender
+    if(stuCheckedFields.every(f=>keys.indexOf(f)>-1)){
+        
+    }
 });
 /**
  * update
  */
-router.put('',(req,res,next)=>{
+router.put('/stu',(req,res,next)=>{
 
 });
 

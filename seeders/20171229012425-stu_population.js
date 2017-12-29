@@ -2,21 +2,6 @@
 
 module.exports = {
   up: (queryInterface, Sequelize) => {
-   return queryInterface.bulkInsert("users",[{
-     name:"stack",
-     gender:1,
-     passwd:"pass",
-   },
-   {
-     name:"Perry",
-     gender:0,
-     passwd:"pass",
-   },
-   {
-     name:"Katty",
-     gender:0,
-     passwd:"pass",
-   }]);
     /*
       Add altering commands here.
       Return a promise to correctly handle asynchronicity.
@@ -27,6 +12,10 @@ module.exports = {
         isBetaMember: false
       }], {});
     */
+    return queryInterface.bulkInsert('stus',[{
+      name:'stack',password:'pass',gender:1},
+      {name:'Mike',password:'pass',gender:0},
+      {name:'Perry',password:'pass',gender:0}]);
   },
 
   down: (queryInterface, Sequelize) => {
