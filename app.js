@@ -1,4 +1,3 @@
-import { QA } from './constants';
 
 var express = require('express');
 var path = require('path');
