@@ -74,9 +74,8 @@ router.get('', (req, res, next) => {
  * req.auth.{tId,name,password}
  * post question of a certain question
  * /23/question
- * 
+ * TODO: file upload 
  */
-
 router.post(/^\/([0-9]+)\/question$/, (req, res, next) => {
     console.log(TAG);
 
@@ -164,9 +163,7 @@ router.get(/^\/([0-9]+)\/([0-9]+)\/comments$/, (req, res, next) => {
                 count: datas.length,
                 data: datas,
             })
-
         }
-
     });
 });
 export default router;
