@@ -1,10 +1,19 @@
-import sequelize from '../mysqlcon';
-const Sequelize=require('sequelize');
-import Course from './course';
+'use strict';
+module.exports = (sequelize, DataTypes) => {
+  var _stucourse = sequelize.define('stucourse', {
+    sId:{
+      type:DataTypes.INTEGER,
+    },
+    cId:{
+      type:DataTypes.INTEGER,
+    }
 
-
-const StuCourse=sequelize.define('stucourse',{
-
-});
-
-export default StuCourse;
+  }, {
+    classMethods: {
+      associate: function(models) {
+        // associations can be defined here
+      }
+    }
+  });
+  return _stucourse;
+};

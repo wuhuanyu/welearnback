@@ -1,7 +1,8 @@
 const router = require('express').Router();
-import Stu from '../models/stu';
 const getError = require('../utils/error');
 const md5 = require('md5');
+const Comment=require('../models/models').Comment;
+const Stu=require('../models/models').Stu;
 /**
  * student signup
  */

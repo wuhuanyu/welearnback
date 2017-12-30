@@ -5,7 +5,6 @@
   "scripts": {
     "start": "nodemon --exec babel-node ./bin/www",
     "restart": "sequelize db:seed:undo:all && sequelize db:seed:all"
-    
   },
   "dependencies": {
     "body-parser": "~1.18.2",

@@ -10,4 +10,4 @@ const sequelize = new Sequelize('welearn', 'root', 'why90951213', {
     }
 });
 
-export default sequelize;
+module.exports=sequelize;

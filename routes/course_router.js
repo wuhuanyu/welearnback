@@ -1,9 +1,7 @@
 const router = require('express').Router();
-import Course from '../models/course';
+import {Question,Comment,Course} from '../models/models';
 const getError = require('../utils/error');
 const findByFieldFactory = require('../utils/commonquery');
-const Question = require('../models/question');
-const Comment = require('../models/comment');
 const TAG = "[CourseRouter]: ";
 import * as constants from '../constants';
 /**

@@ -1,22 +1,23 @@
-import sequelize from '../mysqlcon';
-const Sequelize=require('sequelize');
-const Stu=sequelize.define('stu',{
-    name:{
-        type:Sequelize.STRING,
-        allowNull:false,
-        unique:true,
-    },
-    password:{
-        type:Sequelize.STRING,
-        allowNull:false,
-    },
-    gender:{
-        type:Sequelize.ENUM,
-        values:[0,1]
+'use strict';
+
+module.exports = (sequelize, DataTypes) => {
+  var _stu = sequelize.define('stu', {
+    name: DataTypes.STRING,
+    password: DataTypes.STRING,
+    gender: DataTypes.INTEGER,
+  }, {
+    classMethods: {
+      associate: function(models) {
+        // associations can be defined here
+      }
     }
-});
+  });
+  return _stu;
+};
 
-Stu.checkedFields=['name','password','gender'];
-export default Stu;
 
+// Stu.checkedFields=['name','gender','password'];
+
+
+// module.exports.Stu=Stu;
 

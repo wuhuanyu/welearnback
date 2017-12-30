@@ -1,19 +1,20 @@
 'use strict';
 module.exports = (sequelize, DataTypes) => {
-  var _stucourse = sequelize.define('stucourse', {
-    sId:{
+  var _Teacourse = sequelize.define('teacourse', {
+    tId: {
       type:DataTypes.INTEGER,
+      references:{model:'teacher',key:'id'}
     },
     cId:{
       type:DataTypes.INTEGER,
+      references:{model:'course',key:'id'}
     }
-
   }, {
     classMethods: {
       associate: function(models) {
-        // associations can be defined here
+
       }
     }
   });
-  return _stucourse;
+  return _Teacourse;
 };
