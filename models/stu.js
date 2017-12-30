@@ -16,8 +16,6 @@ module.exports = (sequelize, DataTypes) => {
 };
 
 
-// Stu.checkedFields=['name','gender','password'];
 
 
-// module.exports.Stu=Stu·;
 
