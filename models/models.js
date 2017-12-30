@@ -13,7 +13,7 @@ Teacher.checkedFields = ['name', 'password', 'gender'];
 let Course = db.import(__dirname + '/course.js');
 Course.checkedFields = ['name', 'dec'];
 
-let TeaCourse = db.import(__dirname + '/teacourse.js');
+// let TeaCourse = db.import(__dirname + '/teacourse.js');
 
 
 module.exports = {

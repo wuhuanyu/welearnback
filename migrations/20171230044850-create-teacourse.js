@@ -1,8 +1,8 @@
 'use strict';
-const Teacher =require('../models/models').Teacher;
+// const Teacher = require('../models/models').Teacher;
 module.exports = {
   up: (queryInterface, Sequelize) => {
-    return queryInterface.createTable('teacourses', {
+    return queryInterface.createTable('teacourse', {
       id: {
         allowNull: false,
         autoIncrement: true,
@@ -11,11 +11,11 @@ module.exports = {
       },
       tId: {
         type: Sequelize.INTEGER,
-        references:{model:'teacher',key:'id'}
+        references:{model:'teachers',key:'id'}
       },
       cId: {
         type: Sequelize.INTEGER,
-        references:{model:'course',key:'id'}
+        references:{model:'courses',key:'id'}
       },
 
       createdAt: {
