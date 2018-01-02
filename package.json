@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "start": "nodemon --exec babel-node ./bin/www",
-    "mysqlrestart":"sequelize db:migrate:undo:all && sequelize db:migrate && sequelize db:seed:all"
+    "restart":"sequelize db:migrate:undo:all && sequelize db:migrate && sequelize db:seed:all"
   },
   "dependencies": {
     "body-parser": "~1.18.2",

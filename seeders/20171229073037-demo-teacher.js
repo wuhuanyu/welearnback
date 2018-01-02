@@ -16,6 +16,8 @@ module.exports = {
       {name:'MrZhao',password:"pass",gender:21},
       {name:'MrsQian',password:"pass",gender:22},
       {name:'MrsWu',password:"pass",gender:22},
+      {name:'MrWu',password:"pass",gender:21},
+      {name:'MrSiMa',password:"pass",gender:21},
     ]);
   },
 
