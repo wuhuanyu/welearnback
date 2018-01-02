@@ -13,9 +13,9 @@ module.exports = {
       }], {});
     */
     return queryInterface.bulkInsert('teachers',[
-      {name:'MrZhao',password:"pass",gender:0},
-      {name:'MrsQian',password:"pass",gender:1},
-      {name:'MrsWu',password:"pass",gender:2},
+      {name:'MrZhao',password:"pass",gender:21},
+      {name:'MrsQian',password:"pass",gender:22},
+      {name:'MrsWu',password:"pass",gender:22},
     ]);
   },
 

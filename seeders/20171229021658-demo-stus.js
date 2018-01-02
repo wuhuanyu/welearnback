@@ -13,9 +13,9 @@ module.exports = {
       }], {});
     */
     return queryInterface.bulkInsert('stus',[
-      {name:'stack',password:"pass",gender:1},
-      {name:'Kate',password:"pass",gender:0},
-      {name:'Perry',password:"pass",gender:0},
+      {name:'Stack',password:"pass",gender:21},
+      {name:'Kate',password:"pass",gender:22},
+      {name:'Perry',password:"pass",gender:22},
     ])
   },
 
