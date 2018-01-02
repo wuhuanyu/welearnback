@@ -1,16 +1,26 @@
-
 const router = require('express').Router();
 const getError = require('../utils/error');
 const md5 = require('md5');
 const Comment = require('../models/models').Comment;
 const Stu = require('../models/models').Stu;
+const Teacher =require('../models/models').Teacher;
 const StuCourse = require('../models/models').StuCourse;
+import {ACC_T_Stu,ACC_T_Tea} from '../constants';
 
 const TAG = "[AccRouter]: ";
+
+
+router.post('',(req,res,next)=>{
+    let uBody=req.body,name=uBody.name,password=uBody.password;type=uBody.type;
+    let user=type===ACC_T_Stu?Stu:Teacher;
+    user.findOne({where:{name:name}}).then(found=>{
+
+    });
+});
+
 /**
  * student signup
  */
-
 router.post('/stu', (req, res, next) => {
     let uBody = req.body;
     let keys = Object.keys(uBody);
@@ -108,4 +118,12 @@ router.delete(/^\/stu\/([0-9]+)\/course$/, (req, res, next) => {
 
 });
 
+
+
+
+/**
+ * TODO:teacher 
+ */
+
+ 
 module.exports=router;

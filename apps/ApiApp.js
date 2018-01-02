@@ -4,8 +4,10 @@ const AccRouter=require('../routes/accrouter');
 import * as constants from '../constants';
 import CourseRouter from '../routes/course_router';
 
+
 /**
  * add authenticated information
+ * /api/v1/acc
  */
 
 ApiApp.use('/acc',AccRouter);
