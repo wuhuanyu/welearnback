@@ -12,7 +12,7 @@ module.exports = {
         isBetaMember: false
       }], {});
     */
-    return queryInterface.bulkInsert('stucourse',[{
+    return queryInterface.bulkInsert('stucourses',[{
       sId:1,
       cId:1,
     },
@@ -28,6 +28,6 @@ module.exports = {
       Example:
       return queryInterface.bulkDelete('Person', null, {});
     */
-    return queryInterface.bulkDelete('stucourse',null,{});
+    return queryInterface.bulkDelete('stucourses',null,{});
   }
 };

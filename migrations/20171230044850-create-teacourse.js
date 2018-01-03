@@ -2,7 +2,7 @@
 // const Teacher = require('../models/models').Teacher;
 module.exports = {
   up: (queryInterface, Sequelize) => {
-    return queryInterface.createTable('teacourse', {
+    return queryInterface.createTable('teacourses', {
       id: {
         allowNull: false,
         autoIncrement: true,
@@ -31,6 +31,6 @@ module.exports = {
     });
   },
   down: (queryInterface, Sequelize) => {
-    return queryInterface.dropTable('teacourse');
+    return queryInterface.dropTable('teacourses');
   }
 };

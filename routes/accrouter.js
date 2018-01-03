@@ -127,7 +127,7 @@ router.post(/^\/stu\/([0-9]+)\/course$/, (req, res, next) => {
     if (!Array.isArray(cS));
     else {
         let ps = cS.map(cID => {
-            //TODO: check if exits
+            //TODO: check if record already exists
             StuCourse.findOne({ where: { sId: sID, cId: cID } }).then(data => {
 
             })
@@ -146,6 +146,7 @@ router.post(/^\/stu\/([0-9]+)\/course$/, (req, res, next) => {
 /**
  * get course of 13
  * /stu/12/course
+ * tested
  */
 router.get(/^\/stu\/([0-9]+)\/course$/, (req, res, next) => {
     let sID = req.params[0];
@@ -177,7 +178,8 @@ router.delete(/^\/stu\/([0-9]+)\/course$/, (req, res, next) => {
 
 
 /**
- * TODO:test
+ * tested 
+ * teacher signup 
  */
 
 router.post('/tea', (req, res, next) => {
@@ -197,7 +199,7 @@ router.post('/tea', (req, res, next) => {
                 });
                 newTea.save().then(savedTea => {
                     res.status(200).json({
-                        result: savedStu.id,
+                        result: savedTea.id,
                         msg: "SignUp Succesfully",
                     });
                 }).catch(e => next(getError(500, e.message)));
@@ -206,7 +208,7 @@ router.post('/tea', (req, res, next) => {
             next(getError(500, e.message));
         })
     } else {
-        next(getError(400, "Wrong format for Stu signup"));
+        next(getError(400, "Wrong format for Teacher signup"));
     }
 });
 
@@ -220,7 +222,8 @@ router.get('/tea/:id',(req,res,next)=>{
 /**
  * add course to teacher with id 1 
  * post /tea/1/course req.body.{cs:[1,2,3]}
- * TODO: check if exists; test
+ * TODO: check if exists; 
+ * tested
  */
 router.post('/tea/:id/courses',(req,res,next)=>{
     let cIDs=req.body.cs,tID=req.params.id;

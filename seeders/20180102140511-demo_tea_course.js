@@ -12,14 +12,14 @@ module.exports = {
         isBetaMember: false
       }], {});
     */
-    return queryInterface.bulkInsert('teacourse',[{
+    return queryInterface.bulkInsert('teacourses',[{
       tId:1,
       cId:1,
     },{
       tId:2,
       cId:2,
     },{
-      cId:3,
+      tId:3,
       cId:3
     }]);
   },
@@ -32,6 +32,6 @@ module.exports = {
       Example:
       return queryInterface.bulkDelete('Person', null, {});
     */
-    return queryInterface.bulkDelete('teacourse',null,{});
+    return queryInterface.bulkDelete('teacourses',null,{});
   }
 };

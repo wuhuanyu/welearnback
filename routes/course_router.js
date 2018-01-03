@@ -74,7 +74,6 @@ router.post('', multipleUp, (req, res, next) => {
 
 /**
  * /api/v1/course/:id
- * TODO:test get image
  */
 router.get(/^\/([0-9]+)$/, (req, res, next) => {
     let id = req.params[0];
@@ -84,11 +83,11 @@ router.get(/^\/([0-9]+)$/, (req, res, next) => {
             if (foundC) {
                 _File.findAll({ where: { forT: constants.ForT_Course, fId: foundC.id, fT: constants.FT_IMAGE }, attributes: ['name'] })
                     .then(images => {
-                        foundC.images = images;
+                        let data=foundC.toJSON();
+                        data.images=images.map(i=>i.name);
                         res.status(200).json({
                             count: 1,
-                            data: foundC,
-                            images~
+                            data: data,
                         })
                     })
             } else {
