@@ -14,6 +14,10 @@ const storage=multer.diskStorage({
         else if(fT===Constants.FT_FILE){
             cb(null,commonFileDest);
         }
+    },
+    filename:function(req,file,cb){
+        // let extention=file.originalname.split('.').slice(-1)[0];
+        cb(null,new Date().getTime()+file.originalname);
     }
 });
 const upload=multer({storage:storage});

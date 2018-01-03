@@ -1,18 +1,42 @@
 const router = require('express').Router();
-import {Question,Comment,Course} from '../models/models';
+import { Question, Comment, Course } from '../models/models';
 const getError = require('../utils/error');
 const findByFieldFactory = require('../utils/commonquery');
 const TAG = "[CourseRouter]: ";
 import * as constants from '../constants';
+const _File = require('../models/models').UploadFile;
+const multer = require('multer');
+const _path = require('path');
+const commonFileDest = _path.resolve(__dirname, '../uploads');
+const imageDest = _path.resolve(__dirname, '../uploads/images');
+import * as Constants from '../constants';``
+import { isImage } from '../utils/check';
+//storage config
+const storage = multer.diskStorage({
+    destination: function (req, file, cb) {
+        console.log(JSON.stringify(file));
+        if (isImage(file.originalname)) {
+            cb(null, imageDest);
+        }
+        else  {
+            cb(null, commonFileDest);
+        }
+    },
+    filename: function (req, file, cb) {
+        cb(null, new Date().getTime() + file.originalname);
+    }
+});
+const upload = multer({ storage: storage });
+const multipleUp = upload.fields([{ name: "upload", maxCount: 5 }]);
 
 /**
  * tested
- * TODO:add couse image
+ * 
  */
-
-router.post('', (req, res, next) => {
-
+router.post('',multipleUp, (req, res, next) => {
     let b = req.body;
+    // console.log(JSON.stringify(b));
+    let files = req.files['upload'], auth = req.auth;
     if (['name', 'desc'].every(f => {
         return Object.keys(b).indexOf(f) > -1;
     })) {
@@ -22,9 +46,25 @@ router.post('', (req, res, next) => {
             desc: d,
         });
         newC.save().then(savedC => {
-            res.status(200).json({
-                result: savedC.id,
-                msg: "Course Uploaded Successfully"
+            let savePromsies = files.map(file => {
+                let { originalname, size, filename, path } = file;
+                let newF = _File.build({
+                    aT: Constants.ACC_T_Tea,
+                    aId: auth.id,
+                    forT: Constants.ForT_Course,
+                    fId: savedC.id,
+                    fT: (isImage(originalname) ? Constants.FT_IMAGE : Constants.FT_FILE),
+                    original_name: originalname,
+                    name: filename,
+                    dir: path,
+                });
+                return newF.save();
+            });
+            Promise.all(savePromsies).then(saved => {
+                res.status(200).json({
+                    result: savedC.id,
+                    msg: "Course Uploaded Successfully"
+                });
             });
         });
     } else {
@@ -34,7 +74,7 @@ router.post('', (req, res, next) => {
 
 /**
  * /api/v1/course/:id
- * tested
+ * TODO:test get image
  */
 router.get(/^\/([0-9]+)$/, (req, res, next) => {
     let id = req.params[0];
@@ -42,10 +82,14 @@ router.get(/^\/([0-9]+)$/, (req, res, next) => {
     if (!isNaN(id)) {
         Course.findById(+id).then(foundC => {
             if (foundC) {
-                res.status(200).json({
-                    count: 1,
-                    data: foundC,
-                })
+                _File.findAll({ where: { forT: constants.ForT_Course, fId: foundC.id, fT: constants.FT_IMAGE }, attributes: ['name'] })
+                    .then(images => {
+                        foundC.images = images;
+                        res.status(200).json({
+                            count: 1,
+                            data: foundC,
+                        })
+                    })
             } else {
                 next(getError(404, "Resource Not Found"));
             }
@@ -79,11 +123,10 @@ router.get('', (req, res, next) => {
  * req.auth.{tId,name,password}
  * post question of a certain question
  * /23/question
- * TODO: file upload 
+ * TODO: file upload,image upload 
  */
 router.post(/^\/([0-9]+)\/question$/, (req, res, next) => {
     console.log(TAG);
-
     let b = req.body, cid = req.params[0];
     //check fields
     if (['type', 'body', 'ans'].every(f => Object.keys(b).indexOf(f) > -1)) {
@@ -124,12 +167,11 @@ router.get(/^\/([0-9]+)\/questions$/, (req, res, next) => {
 
 
 /**
+ * 
  *  /12/12/comment
- * tested
  */
 router.post(/^\/([0-9]+)\/([0-9]+)\/comment$/, (req, res, next) => {
     let c = req.params[0], q = req.params[1];
-
     if ('body' in req.body) {
         let body = req.body;
         let newC = new Comment({
@@ -163,7 +205,7 @@ router.get(/^\/([0-9]+)\/([0-9]+)\/comments$/, (req, res, next) => {
         if (!datas.length) {
             next(getError(404, "No such Resource"));
         }
-        else if(datas.length) {
+        else if (datas.length) {
             res.status(200).json({
                 count: datas.length,
                 data: datas,
