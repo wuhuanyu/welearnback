@@ -5,35 +5,16 @@ const findByFieldFactory = require('../utils/commonquery');
 const TAG = "[CourseRouter]: ";
 import * as constants from '../constants';
 const _File = require('../models/models').UploadFile;
-const multer = require('multer');
-const _path = require('path');
-const commonFileDest = _path.resolve(__dirname, '../uploads');
-const imageDest = _path.resolve(__dirname, '../uploads/images');
-import * as Constants from '../constants'; ``
+import * as Constants from '../constants'; 
 import { isImage } from '../utils/check';
-//storage config
-const storage = multer.diskStorage({
-    destination: function (req, file, cb) {
-        console.log(JSON.stringify(file));
-        if (isImage(file.originalname)) {
-            cb(null, imageDest);
-        }
-        else {
-            cb(null, commonFileDest);
-        }
-    },
-    filename: function (req, file, cb) {
-        cb(null, new Date().getTime() + file.originalname);
-    }
-});
-const upload = multer({ storage: storage });
-const multipleUp = upload.fields([{ name: "upload", maxCount: 5 }]);
+import {defaultConfig} from '../config/uploadconfig';
+
 
 /**
  * tested
  * 
  */
-router.post('', multipleUp, (req, res, next) => {
+router.post('', defaultConfig, (req, res, next) => {
     let b = req.body;
     // console.log(JSON.stringify(b));
     let files = req.files['upload'], auth = req.auth;
@@ -133,7 +114,7 @@ router.get('', (req, res, next) => {
  * /23/question
  * TODO: test file upload,image upload 
  */
-router.post(/^\/([0-9]+)\/question$/, multipleUp, (req, res, next) => {
+router.post(/^\/([0-9]+)\/question$/, defaultConfig, (req, res, next) => {
     console.log(TAG);
     let b = req.body, cid = req.params[0];
     let auth=req.auth;

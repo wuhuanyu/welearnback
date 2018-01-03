@@ -6,6 +6,10 @@ const findByFieldsFactory = require('../utils/commonquery');
 const getErr = require('../utils/error');
 const _ = require('lodash');
 
+
+/**
+ * TODO:upload image
+ */
 router.post('', (req, res, next) => {
     let keys = Object.keys(req.body);
     if (_.isEqual(keys, Comment.checkedFields)) {
