@@ -9,7 +9,7 @@ const multer = require('multer');
 const _path = require('path');
 const commonFileDest = _path.resolve(__dirname, '../uploads');
 const imageDest = _path.resolve(__dirname, '../uploads/images');
-import * as Constants from '../constants';``
+import * as Constants from '../constants'; ``
 import { isImage } from '../utils/check';
 //storage config
 const storage = multer.diskStorage({
@@ -18,7 +18,7 @@ const storage = multer.diskStorage({
         if (isImage(file.originalname)) {
             cb(null, imageDest);
         }
-        else  {
+        else {
             cb(null, commonFileDest);
         }
     },
@@ -33,7 +33,7 @@ const multipleUp = upload.fields([{ name: "upload", maxCount: 5 }]);
  * tested
  * 
  */
-router.post('',multipleUp, (req, res, next) => {
+router.post('', multipleUp, (req, res, next) => {
     let b = req.body;
     // console.log(JSON.stringify(b));
     let files = req.files['upload'], auth = req.auth;
@@ -100,6 +100,7 @@ router.get(/^\/([0-9]+)$/, (req, res, next) => {
 /**
  * tested
  * http://localhost:3000/api/v1/course?name=Art
+ * TODO:add image 
  */
 router.get('', (req, res, next) => {
     let n = req.query.name;
@@ -123,11 +124,13 @@ router.get('', (req, res, next) => {
  * req.auth.{tId,name,password}
  * post question of a certain question
  * /23/question
- * TODO: file upload,image upload 
+ * TODO: test file upload,image upload 
  */
-router.post(/^\/([0-9]+)\/question$/, (req, res, next) => {
+router.post(/^\/([0-9]+)\/question$/, multipleUp, (req, res, next) => {
     console.log(TAG);
     let b = req.body, cid = req.params[0];
+    let auth=req.auth;
+    let files = req.files['upload'];
     //check fields
     if (['type', 'body', 'ans'].every(f => Object.keys(b).indexOf(f) > -1)) {
         let newQ = new Question({
@@ -139,10 +142,26 @@ router.post(/^\/([0-9]+)\/question$/, (req, res, next) => {
             time: new Date().getTime(),
         });
         newQ.save().then(savedQ => {
-            res.status(200).json({
-                result: savedQ._id,
-                msg: "Question Upload Successfully"
-            })
+            let savePromsies = files.map(file => {
+                let { originalname, size, filename, path } = file;
+                let newF = _File.build({
+                    aT: Constants.ACC_T_Tea,
+                    aId: auth.id,
+                    forT: Constants.ForT_Question,
+                    fId: savedQ._id,
+                    fT: (isImage(originalname) ? Constants.FT_IMAGE : Constants.FT_FILE),
+                    original_name: originalname,
+                    name: filename,
+                    dir: path,
+                });
+                return newF.save();
+            });
+            Promise.all(savePromsies).then(saved => {
+                res.status(200).json({
+                    result: savedQ._id,
+                    msg: "Question Upload Successfully"
+                })
+            });
         }).catch(e => {
             next(getError(500, ""))
         });

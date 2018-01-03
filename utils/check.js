@@ -9,7 +9,7 @@ function check(obj,fields){
     });
 };
 
-const exts=['png','jpg','gif','bmp'];
+const exts=['png','jpg','gif','bmp','jpeg'];
 function isImage(name){
     let ext=name.split('.').slice(-1)[0];
     return exts.indexOf(ext)>-1;
