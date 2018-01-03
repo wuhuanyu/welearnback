@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "start": "rm -rf ./uploads && mkdir ./uploads && mkdir ./uploads/images && nodemon --exec babel-node ./bin/www",
-    "restart": "sequelize db:migrate:undo:all && sequelize db:migrate && sequelize db:seed:all && rm -rf ./uploads && mkdir ./uploads && mkdir ./uploads/images"
+    "restart": "./init.sh"
   },
   "dependencies": {
     "body-parser": "~1.18.2",
