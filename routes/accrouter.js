@@ -8,8 +8,6 @@ const StuCourse = require('../models/models').StuCourse;
 const TC = require('../models/models').TeaCourse;
 import * as constants from '../constants';
 import { ACC_T_Stu, ACC_T_Tea } from '../constants';
-import { constant } from '../../../../../.cache/typescript/2.6/node_modules/@types/async';
-import { Promise } from '../../../../../.cache/typescript/2.6/node_modules/@types/bluebird';
 
 
 const TAG = "[AccRouter]: ";
@@ -47,11 +45,31 @@ const signUp = (type, name, password, gender) => {
 
 }
 
+/**
+ * login
+ * /acc
+ */
 router.post('', (req, res, next) => {
-    let uBody = req.body, name = uBody.name, password = uBody.password; type = uBody.type;
-    let user = type === ACC_T_Stu ? Stu : Teacher;
+    let uBody = req.body, name = uBody.name, password = md5(uBody.password), type = +uBody.type;
+    let user = (type === ACC_T_Stu ? Stu : Teacher);
     user.findOne({ where: { name: name } }).then(found => {
-
+        //no such user
+        if(!found){
+            next(getError(404,"No such user"));
+        }else{
+            //wrong password
+            if(found.password!=password){
+                next(getError(401,"Wrong password"));
+            }
+            //login ok
+            else{
+                res.status(200).json({
+                    result:found.id,
+                    msg:"Login Successfully"
+                });
+            }
+        }
+        
     });
 });
 
