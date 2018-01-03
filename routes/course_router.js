@@ -88,6 +88,7 @@ router.get(/^\/([0-9]+)$/, (req, res, next) => {
                         res.status(200).json({
                             count: 1,
                             data: foundC,
+                            images~
                         })
                     })
             } else {
@@ -100,16 +101,23 @@ router.get(/^\/([0-9]+)$/, (req, res, next) => {
 /**
  * tested
  * http://localhost:3000/api/v1/course?name=Art
- * TODO:add image 
  */
 router.get('', (req, res, next) => {
     let n = req.query.name;
     console.log(TAG + n);
     Course.findOne({ where: { name: n } }).then(foundC => {
         if (foundC) {
-            res.status(200).json({
+            _File.findAll({
+                where:{forT:Constants.ForT_Course,fId:foundC.id,fT:Constants.FT_IMAGE},
+                attributes:['name']
+            }).then(foundImages=>{
+                let images=foundImages.map(foundImage=>foundImage.name);
+                let data=foundC.toJSON();
+                data.images=images;
+                res.status(200).json({
                 count: 1,
-                data: foundC
+                data: data
+            });
             });
         }
         else {
