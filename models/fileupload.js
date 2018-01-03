@@ -13,8 +13,12 @@ module.exports = (sequelize, DataTypes) => {
     
     //file type file,image
     fT:DataTypes.INTEGER,
-    //filename
-    fN:DataTypes.String,
+    //original name
+    original_name:DataTypes.STRING,
+
+    //new name;
+    name:DataTypes.STRING,
+  
     //dir
     dir: DataTypes.STRING,
 

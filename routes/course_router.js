@@ -52,6 +52,7 @@ router.get(/^\/([0-9]+)$/, (req, res, next) => {
         });
     };
 });
+
 /**
  * tested
  * http://localhost:3000/api/v1/course?name=Art

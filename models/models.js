@@ -17,6 +17,8 @@ let StuCourse=db.import(__dirname+'/stucourse.js');
 
 let TeaCourse = db.import(__dirname + '/teacourse.js');
 
+let UploadFile=db.import(__dirname+'/fileupload.js');
+UploadFile.checkedFields=['aT','aId','forT','fId','fT','original_name','name','dir'];
 
 module.exports = {
     Question: Question,
@@ -26,5 +28,6 @@ module.exports = {
     Course: Course,
     TeaCourse: TeaCourse,
     StuCourse:StuCourse,
+    UploadFile:UploadFile,
 };
 

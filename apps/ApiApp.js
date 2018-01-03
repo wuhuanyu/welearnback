@@ -3,6 +3,7 @@ const Qrouter= require('../routes/qrouter');
 const AccRouter=require('../routes/accrouter');
 import * as constants from '../constants';
 import CourseRouter from '../routes/course_router';
+const FileUploadRouter=require('../routes/filerouter');
 // const fileUpload=require('express-fileupload');
 
 
@@ -24,6 +25,5 @@ ApiApp.use((req,res,next)=>{
 });
 ApiApp.use("/question",Qrouter);
 ApiApp.use('/course',CourseRouter);
-ApiApp.use(fileUpload());
-ApiApp.use('/file',)
+ApiApp.use('/file',FileUploadRouter);
 module.exports=ApiApp;

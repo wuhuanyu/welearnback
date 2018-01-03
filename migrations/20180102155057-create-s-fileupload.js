@@ -36,18 +36,30 @@ module.exports = {
         type:Sequelize.INTEGER,
         allowNull:false,
       },
+      //original name
+      original_name:{
+        type:Sequelize.STRING,
+        allowNull:false,
+      },
+      name:{
+        type:Sequelize.STRING,
+        allowNull:false,
+      },
+
       dir: {
         type: Sequelize.STRING,
         allowNull:false,
       },
-
-     
       createdAt: {
         allowNull: false,
         type: Sequelize.DATE,
         defaultValue:Sequelize.literal('CURRENT_TIMESTAMP')
       },
-      
+      updatedAt:{
+        allowNull: false,
+        type: Sequelize.DATE,
+        defaultValue:Sequelize.literal('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP')
+      }
     });
   },
   down: (queryInterface, Sequelize) => {
