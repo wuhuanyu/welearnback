@@ -7,8 +7,11 @@ import * as constants from '../constants';
 
 /**
  * tested
+ * TODO:add couse image
  */
+
 router.post('', (req, res, next) => {
+
     let b = req.body;
     if (['name', 'desc'].every(f => {
         return Object.keys(b).indexOf(f) > -1;
