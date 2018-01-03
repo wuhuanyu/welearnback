@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "start": "rm -rf ./uploads && mkdir ./uploads && nodemon --exec babel-node ./bin/www",
+    "start": "rm -rf ./uploads && mkdir ./uploads && mkdir ./uploads/images && nodemon --exec babel-node ./bin/www",
     "restart": "sequelize db:migrate:undo:all && sequelize db:migrate && sequelize db:seed:all && rm -rf ./uploads && mkdir ./uploads && mkdir ./uploads/images"
   },
   "dependencies": {
