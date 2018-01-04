@@ -20,6 +20,10 @@ response:`{msg:Course Selected  Successfully}`
 
 ## 获取课程 (stu 和teacher 类似)
 get /acc/stu/:id/courses
+
+## TODO: 获取没有的课程 
+get /acc/stu/:id/notcourses
+
 response:`{count:count,data:courses}`
 
 
