@@ -225,7 +225,7 @@ router.get('/tea/:id',(req,res,next)=>{
  * TODO: check if exists; 
  * tested
  */
-router.post('/tea/:id/courses',(req,res,next)=>{
+router.post('/tea/:id/course',(req,res,next)=>{
     let cIDs=req.body.cs,tID=req.params.id;
     if(Array.isArray(cIDs)){
         let savedPromsie=cIDs.map(cid=>{
@@ -247,5 +247,10 @@ router.post('/tea/:id/courses',(req,res,next)=>{
     }
 })
 
+
+/**
+ * TODO:get course of a teacher
+ */
+router.get()
 
 module.exports=router;

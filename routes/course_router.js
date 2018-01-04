@@ -5,11 +5,10 @@ const findByFieldFactory = require('../utils/commonquery');
 const TAG = "[CourseRouter]: ";
 import * as constants from '../constants';
 const _File = require('../models/models').UploadFile;
-import * as Constants from '../constants'; 
+import * as Constants from '../constants';
 import { isImage } from '../utils/check';
-import {defaultConfig} from '../config/uploadconfig';
-
-
+import { defaultConfig } from '../config/uploadconfig';
+const OP = require('sequelize').Op;
 /**
  * tested
  * 
@@ -64,8 +63,8 @@ router.get(/^\/([0-9]+)$/, (req, res, next) => {
             if (foundC) {
                 _File.findAll({ where: { forT: constants.ForT_Course, fId: foundC.id, fT: constants.FT_IMAGE }, attributes: ['name'] })
                     .then(images => {
-                        let data=foundC.toJSON();
-                        data.images=images.map(i=>i.name);
+                        let data = foundC.toJSON();
+                        data.images = images.map(i => i.name);
                         res.status(200).json({
                             count: 1,
                             data: data,
@@ -84,26 +83,53 @@ router.get(/^\/([0-9]+)$/, (req, res, next) => {
  */
 router.get('', (req, res, next) => {
     let n = req.query.name;
-    console.log(TAG + n);
+    // console.log(TAG + n);
     Course.findOne({ where: { name: n } }).then(foundC => {
         if (foundC) {
             _File.findAll({
-                where:{forT:Constants.ForT_Course,fId:foundC.id,fT:Constants.FT_IMAGE},
-                attributes:['name']
-            }).then(foundImages=>{
-                let images=foundImages.map(foundImage=>foundImage.name);
-                let data=foundC.toJSON();
-                data.images=images;
+                where: { forT: Constants.ForT_Course, fId: foundC.id, fT: Constants.FT_IMAGE },
+                attributes: ['name']
+            }).then(foundImages => {
+                let images = foundImages.map(foundImage => foundImage.name);
+                let data = foundC.toJSON();
+                data.images = images;
                 res.status(200).json({
-                count: 1,
-                data: data
-            });
+                    count: 1,
+                    data: data
+                });
             });
         }
         else {
             next(getError(404, "Resource Not Found"));
         }
     });
+});
+/**
+ * 
+ * @param {Object} options 
+ * TODO:getimages utility
+ */
+const getImages=async (options)=>{
+    let {forT,forId}=options;
+
+}
+
+
+/**
+ * TODO:add paging funaction
+ * get /course/all
+ */
+
+router.get('/all', (req, res, next) => {
+    let { start, count } = req.query;
+    Course.findAll({
+        where: { id: { [OP.between]: [start, start + count] } },
+    }).then(foundCs => {
+        res.status(200).json({
+            count:foundCs.length,
+            data:foundCs
+        })
+    })
 });
 
 
@@ -117,7 +143,7 @@ router.get('', (req, res, next) => {
 router.post(/^\/([0-9]+)\/question$/, defaultConfig, (req, res, next) => {
     console.log(TAG);
     let b = req.body, cid = req.params[0];
-    let auth=req.auth;
+    let auth = req.auth;
     let files = req.files['upload'];
     //check fields
     if (['type', 'body', 'ans'].every(f => Object.keys(b).indexOf(f) > -1)) {

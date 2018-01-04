@@ -1,4 +1,3 @@
-
 var express = require('express');
 var path = require('path');
 var logger = require('morgan');
@@ -16,13 +15,14 @@ mongoose.connect("mongodb://localhost:27017/welearn",(err)=>{
 
 });
 mongoose.Promise=global.Promise;
+
 // view engine setup
 // app.set('views', path.join(__dirname, 'views'));
 // app.set('view engine', 'ejs');
 
 // uncomment after placing your favicon in /public
 
-
+app.use('/images',express.static('uploads/images'));
 app.use('/', WebApp);
 app.use(logger('dev'));
 app.use(bodyParser.json());
