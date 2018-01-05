@@ -1,6 +1,8 @@
 const mongoose =require('mongoose');
 const QSchema=mongoose.Schema({
+    _id:String,
     type:Number,
+    
     /**
      * course id
      * teacher id

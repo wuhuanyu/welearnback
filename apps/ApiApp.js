@@ -1,10 +1,12 @@
-const ApiApp=require('express')();
-const Qrouter= require('../routes/qrouter');
-const AccRouter=require('../routes/accrouter');
+const ApiApp = require('express')();
+const Qrouter = require('../routes/qrouter');
+const AccRouter = require('../routes/accrouter');
 import * as constants from '../constants';
 import CourseRouter from '../routes/course_router';
-require('express-async-errors');
-const FileUploadRouter=require('../routes/filerouter');
+const FileUploadRouter = require('../routes/filerouter');
+
+
+
 // const fileUpload=require('express-fileupload');
 
 
@@ -13,18 +15,25 @@ const FileUploadRouter=require('../routes/filerouter');
  * /api/v1/acc
  */
 
-ApiApp.use('/acc',AccRouter);
+ApiApp.use('/acc', AccRouter);
 
-ApiApp.use((req,res,next)=>{
-    req.auth={
-        type:constants.ACC_T_Tea,
-        id:1,
-        name:"MrZhao",
-        password:"pass",
+ApiApp.use((req, res, next) => {
+    req.auth = {
+        type: constants.ACC_T_Tea,
+        id: 1,
+        name: "MrZhao",
+        password: "pass",
     };
     next();
 });
-ApiApp.use("/question",Qrouter);
-ApiApp.use('/course',CourseRouter);
-ApiApp.use('/file',FileUploadRouter);
+ApiApp.use("/question", Qrouter);
+ApiApp.use('/course', CourseRouter);
+ApiApp.use('/file', FileUploadRouter);
+ApiApp.use(function (err, req, res, next) {
+    console.log(err.code);
+    res.status(err.code || 500).json({
+        msg: err.msg || err.message,
+    })
+});
+
 module.exports=ApiApp;
