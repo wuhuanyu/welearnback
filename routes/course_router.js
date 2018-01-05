@@ -8,7 +8,50 @@ const _File = require('../models/models').UploadFile;
 import * as Constants from '../constants';
 import { isImage } from '../utils/check';
 import { defaultConfig } from '../config/uploadconfig';
+import { request } from 'https';
 const OP = require('sequelize').Op;
+const Teacher = require('../models/models').Teacher;
+const TeaCourse=require('../models/models').TeaCourse;
+
+
+
+const getTeacherName=async (options)=>{
+    let {tId}=options;
+    let teacher=await Teacher.findOne({where:{id:tId},attributes:['name']});
+    return teacher.name;
+};
+
+const courseToTeacher=async (options)=>{
+    let {cId}= options;
+    let teacourse=await TeaCourse.findOne({where:{cId:cId},attributes:['tId']});
+    console.log(teacourse.toJSON());
+    let teaId=teacourse.tId;
+    let name=await getTeacherName({tId:teaId});
+    return name;
+};
+
+
+/**
+ * 
+ * @param {Object} options 
+ * TODO:getimages utility
+ */
+const getImageNames = async (options) => {
+    let { forT, fId } = options;
+    let images = await _File.findAll({
+        where:{forT:forT,fId:fId,fT:Constants.FT_IMAGE},
+        attributes:['name']
+    });
+    let imageNames=[];
+    for(let im of images){
+        imageNames.push(im.name);
+    }
+    return imageNames;
+}
+
+
+
+
 /**
  * tested
  * 
@@ -55,69 +98,40 @@ router.post('', defaultConfig, (req, res, next) => {
 /**
  * /api/v1/course/:id
  */
-router.get(/^\/([0-9]+)$/, (req, res, next) => {
+
+router.get(/^\/([0-9]+)$/,async (req, res, next) => {
     let id = req.params[0];
-    // console.log(TAG + req.params[0]);
-    if (!isNaN(id)) {
-        Course.findById(+id).then(foundC => {
-            if (foundC) {
-                _File.findAll({ where: { forT: constants.ForT_Course, fId: foundC.id, fT: constants.FT_IMAGE }, attributes: ['name'] })
-                    .then(images => {
-                        let data = foundC.toJSON();
-                        data.images = images.map(i => i.name);
-                        res.status(200).json({
-                            count: 1,
-                            data: data,
-                        })
-                    })
-            } else {
-                next(getError(404, "Resource Not Found"));
-            }
-        });
-    };
+    let course=await Course.findById(+id);
+    let courseFound=course.toJSON();
+    let images=await getImageNames({fT:Constants.FT_FILE,fId:course.id,forT:Constants.ForT_Course});
+    courseFound.images=images;
+    let teacher=await courseToTeacher({cId:course.id});
+    courseFound.teacher=teacher;
+    res.json({
+        count:1,
+        data:courseFound,
+    });
 });
 
 /**
  * tested
  * http://localhost:3000/api/v1/course?name=Art
  */
-router.get('', (req, res, next) => {
+router.get('', async (req, res, next) => {
     let n = req.query.name;
-    // console.log(TAG + n);
-    Course.findOne({ where: { name: n } }).then(foundC => {
-        if (foundC) {
-            _File.findAll({
-                where: { forT: Constants.ForT_Course, fId: foundC.id, fT: Constants.FT_IMAGE },
-                attributes: ['name']
-            }).then(foundImages => {
-                let images = foundImages.map(foundImage => foundImage.name);
-                let data = foundC.toJSON();
-                data.images = images;
-                res.status(200).json({
-                    count: 1,
-                    data: data
-                });
-            });
-        }
-        else {
-            next(getError(404, "Resource Not Found"));
-        }
+    
+    let course= await Course.findOne({ where: { name: n } });
+    let images=await getImageNames({fT:Constants.FT_FILE,fId:course.id,forT:Constants.ForT_Course});
+    let courseFound=course.toJSON();
+    courseFound.images=images;
+    let teacher=await courseToTeacher({cId:course.id});
+    courseFound.teacher=teacher;
+    res.json({
+        count:1,
+        data:courseFound,
     });
 });
-/**
- * 
- * @param {Object} options 
- * TODO:getimages utility
- */
-const getImages = async (options) => {
-    let { forT, fId } = options;
-    let images = await _File.findAll({
-        where:{forT:forT,fId:fId,fT:Constants.FT_IMAGE},
-        attributes:['name']
-    });
-    return images;
 
-}
 
 
 /**
@@ -131,9 +145,10 @@ router.get('/all', async (req, res, next) => {
         });
     let courses=coursesFound.map(c=>c.toJSON());
     for(let c of courses){
-        let imagesFound=await getImages({forT:Constants.ForT_Course,fId:c.id});
-        let images=imagesFound.map(i=>i.toJSON().name);
-        c.images=images;
+        let imagesFound=await getImageNames({forT:Constants.ForT_Course,fId:c.id});
+        let teacher=await courseToTeacher({cId:c.id});
+        c.images=imagesFound;
+        c.teacher=teacher;
     }
     res.json({
         count:courses.length,

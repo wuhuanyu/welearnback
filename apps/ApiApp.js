@@ -3,6 +3,7 @@ const Qrouter= require('../routes/qrouter');
 const AccRouter=require('../routes/accrouter');
 import * as constants from '../constants';
 import CourseRouter from '../routes/course_router';
+require('express-async-errors');
 const FileUploadRouter=require('../routes/filerouter');
 // const fileUpload=require('express-fileupload');
 
