@@ -109,44 +109,36 @@ router.get('', (req, res, next) => {
  * @param {Object} options 
  * TODO:getimages utility
  */
-const getImages=async (options)=>{
-    let {forT,forId}=options;
-    let images=await _File.findAll({
-        // where:{forT:forT,forId:forId,fT:Constants.FT_IMAGE}
+const getImages = async (options) => {
+    let { forT, fId } = options;
+    let images = await _File.findAll({
+        where:{forT:forT,fId:fId,fT:Constants.FT_IMAGE},
+        attributes:['name']
     });
-    
-    console.log(images);
     return images;
-    
+
 }
 
 
 /**
- * TODO:add paging funaction
  * get /course/all
  */
 
-router.get('/all', (req, res, next) => {
-    (async ()=>await getImages({})()).then(resolved=>{
-        console.log(JSON.stringify(resolved));
+router.get('/all', async (req, res, next) => {
+    let { start, count } = req.query;
+    let coursesFound = await Course.findAll({
+            where: { id: { [OP.between]: [start, start + count] } },
+        });
+    let courses=coursesFound.map(c=>c.toJSON());
+    for(let c of courses){
+        let imagesFound=await getImages({forT:Constants.ForT_Course,fId:c.id});
+        let images=imagesFound.map(i=>i.toJSON().name);
+        c.images=images;
+    }
+    res.json({
+        count:courses.length,
+        data:courses
     })
-    // console.log((async ()=>await getImages({}))());
-    // let { start, count } = req.query;
-    
-    // let courses=async ()=>await Course.findAll({
-    //     where: { id: { [OP.between]: [start, start + count] } },
-    // })();
-
-    // console.log(JSON.stringify(courses));
-    // res.status(200).json(courses);
-    // Course.findAll({
-    //     where: { id: { [OP.between]: [start, start + count] } },
-    // }).then(foundCs => {
-    //     res.status(200).json({
-    //         count:foundCs.length,
-    //         data:foundCs
-    //     })
-    // })
 });
 
 
