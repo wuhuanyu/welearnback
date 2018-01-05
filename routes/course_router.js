@@ -111,7 +111,13 @@ router.get('', (req, res, next) => {
  */
 const getImages=async (options)=>{
     let {forT,forId}=options;
-
+    let images=await _File.findAll({
+        // where:{forT:forT,forId:forId,fT:Constants.FT_IMAGE}
+    });
+    
+    console.log(images);
+    return images;
+    
 }
 
 
@@ -121,15 +127,26 @@ const getImages=async (options)=>{
  */
 
 router.get('/all', (req, res, next) => {
-    let { start, count } = req.query;
-    Course.findAll({
-        where: { id: { [OP.between]: [start, start + count] } },
-    }).then(foundCs => {
-        res.status(200).json({
-            count:foundCs.length,
-            data:foundCs
-        })
+    (async ()=>await getImages({})()).then(resolved=>{
+        console.log(JSON.stringify(resolved));
     })
+    // console.log((async ()=>await getImages({}))());
+    // let { start, count } = req.query;
+    
+    // let courses=async ()=>await Course.findAll({
+    //     where: { id: { [OP.between]: [start, start + count] } },
+    // })();
+
+    // console.log(JSON.stringify(courses));
+    // res.status(200).json(courses);
+    // Course.findAll({
+    //     where: { id: { [OP.between]: [start, start + count] } },
+    // }).then(foundCs => {
+    //     res.status(200).json({
+    //         count:foundCs.length,
+    //         data:foundCs
+    //     })
+    // })
 });
 
 

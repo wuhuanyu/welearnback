@@ -251,6 +251,5 @@ router.post('/tea/:id/course',(req,res,next)=>{
 /**
  * TODO:get course of a teacher
  */
-router.get()
 
 module.exports=router;

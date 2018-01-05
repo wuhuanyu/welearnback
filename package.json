@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "start": "rm -rf ./uploads && mkdir ./uploads && mkdir ./uploads/images && nodemon --exec babel-node ./bin/www",
+    "start":" nodemon --exec babel-node ./bin/www",
     "restart": "./init.sh"
   },
   "dependencies": {
