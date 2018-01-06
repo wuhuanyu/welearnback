@@ -29,5 +29,6 @@ module.exports = {
     TeaCourse: TeaCourse,
     StuCourse:StuCourse,
     UploadFile:UploadFile,
+    // Message:require('./message'),
 };
 

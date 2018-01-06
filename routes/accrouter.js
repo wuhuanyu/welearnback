@@ -8,10 +8,11 @@ const StuCourse = require('../models/models').StuCourse;
 const TC = require('../models/models').TeaCourse;
 import * as constants from '../constants';
 import { ACC_T_Stu, ACC_T_Tea } from '../constants';
-
-
+const applyEMW = require('../utils/error').errMW;
+import {getImageNames} from './course_router';
+const Course = require('../models/models').Course;
 const TAG = "[AccRouter]: ";
-
+const TeaCourse=require('../models/models').TeaCourse;
 //TODO: signUp utility
 const signUp = (type, name, password, gender) => {
     let user = type === constants.ACC_T_Stu ? Stu : Teacher;
@@ -54,22 +55,22 @@ router.post('', (req, res, next) => {
     let user = (type === ACC_T_Stu ? Stu : Teacher);
     user.findOne({ where: { name: name } }).then(found => {
         //no such user
-        if(!found){
-            next(getError(404,"No such user"));
-        }else{
+        if (!found) {
+            next(getError(404, "No such user"));
+        } else {
             //wrong password
-            if(found.password!=password){
-                next(getError(401,"Wrong password"));
+            if (found.password != password) {
+                next(getError(401, "Wrong password"));
             }
             //login ok
-            else{
+            else {
                 res.status(200).json({
-                    result:found.id,
-                    msg:"Login Successfully"
+                    result: found.id,
+                    msg: "Login Successfully"
                 });
             }
         }
-        
+
     });
 });
 
@@ -121,27 +122,25 @@ router.put('/stu', (req, res, next) => {
  * 
  */
 
-router.post(/^\/stu\/([0-9]+)\/course$/, (req, res, next) => {
-    // get courses from request
+router.post(/^\/stu\/([0-9]+)\/course$/, applyEMW(async (req, res, next) => {
     let cS = req.body.cs, sID = req.params[0];
-    if (!Array.isArray(cS));
-    else {
-        let ps = cS.map(cID => {
-            //TODO: check if record already exists
-            StuCourse.findOne({ where: { sId: sID, cId: cID } }).then(data => {
-
-            })
-            return StuCourse.build({ sId: sID, cId: cID }).save();
-        });
-        Promise.all(ps).then(() => {
-            res.status(200).json({
-                msg: "Record Inserted Successfully",
-            })
-        }).catch(e => {
-            next(getError(400, e.message));
+    if(!cS) throw getError(400,"Bad request,read api first");
+    if (!Array.isArray(cS)) throw getError(400, "Request body invalid");
+    let results = [];
+    for (let cid of cS) {
+        if (cid) {
+            let foundRecord = await StuCourse.findOne({ where: { sId: sID, cId: +cid } });
+            if (foundRecord) throw getError(400, "Record exists already");
+            let result = await StuCourse.build({ sId: sID, cId: cid }).save();
+            results.push(result);
+        }
+    }
+    if (results.length === cS.length) {
+        res.json({
+            msg: "Record inserted successfully"
         });
     }
-});
+}));
 
 /**
  * get course of 13
@@ -215,8 +214,8 @@ router.post('/tea', (req, res, next) => {
 /**
  * TODO:get infomation of a teacher;
  */
-router.get('/tea/:id',(req,res,next)=>{
-    
+router.get('/tea/:id', (req, res, next) => {
+
 });
 
 /**
@@ -225,31 +224,51 @@ router.get('/tea/:id',(req,res,next)=>{
  * TODO: check if exists; 
  * tested
  */
-router.post('/tea/:id/course',(req,res,next)=>{
-    let cIDs=req.body.cs,tID=req.params.id;
-    if(Array.isArray(cIDs)){
-        let savedPromsie=cIDs.map(cid=>{
-            let newTC=TC.build({
-                tId:tID,
-                cId:cid,
+router.post('/tea/:id/course', (req, res, next) => {
+    let cIDs = req.body.cs, tID = req.params.id;
+    if (Array.isArray(cIDs)) {
+        let savedPromsie = cIDs.map(cid => {
+            let newTC = TC.build({
+                tId: tID,
+                cId: cid,
             });
             return newTC.save();
         });
-        Promise.all(savedPromsie).then((saved)=>{
+        Promise.all(savedPromsie).then((saved) => {
             res.status(200).json({
-                msg:"Course Selected Successfully"
+                msg: "Course Selected Successfully"
             });
-        }).catch(e=>{
-            next(getError(400,e.message));
+        }).catch(e => {
+            next(getError(400, e.message));
         })
-    }else{
-    //    next(getError(400,"cs must be array"));
+    } else {
+        //    next(getError(400,"cs must be array"));
     }
 })
 
 
 /**
- * TODO:get course of a teacher
+ * get /tea/1/course
+ * 
  */
+
+ router.get(/^\/tea\/([0-9]+)\/course$/,applyEMW(async (req,res,next)=>{
+     let tID=req.params[0];
+     let teaCourseFounds=await TeaCourse.findAll({where:{tId:tID},attributes:['cId']});
+     let courseIds=[];
+     let data=[];
+     for(let tc of teaCourseFounds){
+         let cId=tc.cId;
+         let course=await Course.findOne({where:{id:cId}});
+         course=course.toJSON();
+         let imagesFound= await getImageNames({fId:cId,forT:constants.ForT_Course});
+         course.images=imagesFound;
+         data.push(course);
+     }
+     res.json({
+         count:data.length,
+         data:data,
+     })
+ }));
 
 module.exports=router;

@@ -30,7 +30,6 @@ const courseToTeacher = async (options) => {
     return name;
 };
 
-
 /**
  * 
  * @param {Object} options 
@@ -278,3 +277,5 @@ router.get(/^\/([0-9]+)\/([0-9]+)\/comments$/,applyErrMiddleware(async (req, res
 
 }));
 export default router;
+
+export {getImageNames};
