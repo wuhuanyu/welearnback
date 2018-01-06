@@ -1,46 +1,26 @@
 #!/usr/bin/env node
 
-/**
- * Module dependencies.
- */
-
-var app = require('../app');
+const http=require('http');
 var debug = require('debug')('welearnback:server');
-var http = require('http');
-
-/**
- * Get port from environment and store in Express.
- */
-
-var port = normalizePort(process.env.PORT || '3000');
-app.set('port', port);
-
-/**
- * Create HTTP server.
- */
-
-var server = http.createServer(app);
-
-/**
- * Listen on provided port, on all network interfaces.
- */
-
-server.listen(port);
-
-server.on('error', onError);
-server.on('listening', onListening);
+const app=require('../push_service');
 
 
+app.set('port',normalizePort('3001'));
+const server=http.createServer(app);
+const io=require('socket.io')(server);
 
-/**
- * Normalize a port into a number, string, or false.
- */
+io.on('connection',(socket)=>{
+    console.log('a user connected');
+});
+server.listen(normalizePort('3001'));
+server.on('error',onError);
+server.on('listening',onListening);
+
 
 function normalizePort(val) {
   var port = parseInt(val, 10);
 
   if (isNaN(port)) {
-    // named pipe
     return val;
   }
 

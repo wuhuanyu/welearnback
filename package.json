@@ -22,7 +22,8 @@
     "multer": "^1.3.0",
     "mysql2": "^1.5.1",
     "sequelize": "^4.28.6",
-    "serve-favicon": "~2.4.5"
+    "serve-favicon": "~2.4.5",
+    "socket.io": "^2.0.4"
   },
   "devDependencies": {
     "babel-preset-es2015": "^6.24.1",
