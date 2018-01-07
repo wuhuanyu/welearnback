@@ -12,10 +12,23 @@ const io=require('socket.io')(server);
 io.on('connection',(socket)=>{
     console.log('a user connected');
 });
+
+
+global.io=io;
+
+
+
 server.listen(normalizePort('3001'));
 server.on('error',onError);
 server.on('listening',onListening);
 
+
+app.post('/push',(req,res,next)=>{
+  io.emit('msg',JSON.stringify(req.body));
+  res.json({
+    msg:"Message send"
+  });
+});
 
 function normalizePort(val) {
   var port = parseInt(val, 10);
@@ -71,3 +84,7 @@ function onListening() {
     : 'port ' + addr.port;
   debug('Listening on ' + bind);
 }
+
+process.on('uncaughtException',(e)=>{
+  console.log(e);
+});

@@ -36,12 +36,26 @@ router.post('',applyErrMW(checkAuth),applyErrMW(async (req,res,next)=>{
         recipient_course_id:receiverId,
         body:body,
     }).save();
+    //TODO: integrate message push service
     res.json({
         result:saved.id,
         msg:"Message sent successfully"
     });
 }));
 
+/**
+ * get  /message/:courseId
+ * authentication assumed
+ */
+router.get(/^\/message\/([0-9]+)$/,applyErrMW(async (req,res,next)=>{
+    let courseId=req.params[0];
+    let msgs=await Message.findAll({where:{recipient_course_id:courseId}});
+    if(msgs.length===0)throw getError(404,"No such resource");
+    res.json({
+        count:msgs.length,
+        data:msgs
+    });
+}));
 
 
 module.exports=router;
