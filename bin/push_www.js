@@ -1,16 +1,26 @@
-#!/usr/bin/env node
+import { request } from 'http';
 
+const Student=require('../models/models').Stu;;
 const http=require('http');
 var debug = require('debug')('welearnback:server');
 const app=require('../push_service');
-
+const util=require('util');
 
 app.set('port',normalizePort('3001'));
 const server=http.createServer(app);
 const io=require('socket.io')(server);
 
-io.on('connection',(socket)=>{
+// io.engine.generateId=async (req)=>{
+// // let stu= await Student.findOne({where:{id:0}});
+// // return stu.id;
+// }
+io.on('connect',async (socket)=>{
+
+// let stu= await  Student.findOne({where:{id:1}});
+// socket.io.engine.id=stu.id;
     console.log('a user connected');
+    // console.log(JSON.stringify(socket.request.headers));
+    // console.log(util.inspect(socket));
 });
 
 
