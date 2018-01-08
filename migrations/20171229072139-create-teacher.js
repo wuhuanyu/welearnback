@@ -18,6 +18,15 @@ module.exports = {
         // allowNull:false,
         type:Sequelize.INTEGER,
       },
+      push_token:{
+        type:Sequelize.STRING,
+        allowNull:true,
+      },
+      login:{
+        type:Sequelize.BOOLEAN,
+        allowNull:false,
+        defaultValue:false,
+      },
       createdAt: {
         allowNull: false,
         type: Sequelize.DATE,

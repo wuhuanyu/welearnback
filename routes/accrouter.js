@@ -9,70 +9,33 @@ const TC = require('../models/models').TeaCourse;
 import * as constants from '../constants';
 import { ACC_T_Stu, ACC_T_Tea } from '../constants';
 const applyEMW = require('../utils/error').errMW;
-import {getImageNames} from './course_router';
+import { getImageNames } from './course_router';
 const Course = require('../models/models').Course;
 const TAG = "[AccRouter]: ";
-const TeaCourse=require('../models/models').TeaCourse;
-//TODO: signUp utility
-const signUp = (type, name, password, gender) => {
-    let user = type === constants.ACC_T_Stu ? Stu : Teacher;
+const TeaCourse = require('../models/models').TeaCourse;
 
-    //check fields must have name,password,gender
-    //student teacher must have checkedfields
-    if (user.checkedFields.every(f => keys.indexOf(f) > -1)) {
-        let n = name, p = password, g = gender;//assume gender is a number,uncheck
-        user.findOne({ where: { name: n } }).then(founded => {
-            if (founded) {
-                return Promise.reject(getError(400, "Name exsits already"));
-            } else {
-                let newUser = user.build({
-                    name: n,
-                    password: md5(p),
-                    gender: +g,
-                });
-                newUser.save().then(savedUser => {
-                    res.status(200).json({
-                        result: savedUser.id,
-                        msg: "SignUp Succesfully",
-                    });
-                }).catch(e => next(getError(500, e.message)));
-            }
-        }).catch(e => {
-            next(getError(500, e.message));
-        })
-    } else {
-        next(getError(400, "Wrong format for Stu signup"));
-    }
-
-}
 
 /**
  * login
  * /acc
  */
-router.post('', (req, res, next) => {
-    let uBody = req.body, name = uBody.name, password = md5(uBody.password), type = +uBody.type;
+router.post('', applyEMW(async((req, res, next) => {
+    let uBody = req.body, name = uBody.name, password = md5(uBody.password), type = +uBody.type,action=uBody.action;
+    if (!action.toLowerCase() in ['login','logout'])
+    throw getError(404,"Illegal action");
     let user = (type === ACC_T_Stu ? Stu : Teacher);
-    user.findOne({ where: { name: name } }).then(found => {
-        //no such user
-        if (!found) {
-            next(getError(404, "No such user"));
-        } else {
-            //wrong password
-            if (found.password != password) {
-                next(getError(401, "Wrong password"));
-            }
-            //login ok
-            else {
-                res.status(200).json({
-                    result: found.id,
-                    msg: "Login Successfully"
-                });
-            }
-        }
 
+    let found = await user.findOne({ where: { name: name, password: password } });
+    if (!found) throw getError(401, "Wrong credentials");
+    
+    else let updated = await found.update({
+        login: action==='login'
     });
-});
+    res.status(200).json({
+        result: updated.id,
+        msg: `${action} successfully` 
+    });
+    })));
 
 /**
  * student signup
@@ -124,7 +87,7 @@ router.put('/stu', (req, res, next) => {
 
 router.post(/^\/stu\/([0-9]+)\/course$/, applyEMW(async (req, res, next) => {
     let cS = req.body.cs, sID = req.params[0];
-    if(!cS) throw getError(400,"Bad request,read api first");
+    if (!cS) throw getError(400, "Bad request,read api first");
     if (!Array.isArray(cS)) throw getError(400, "Request body invalid");
     let results = [];
     for (let cid of cS) {
@@ -252,23 +215,23 @@ router.post('/tea/:id/course', (req, res, next) => {
  * 
  */
 
- router.get(/^\/tea\/([0-9]+)\/course$/,applyEMW(async (req,res,next)=>{
-     let tID=req.params[0];
-     let teaCourseFounds=await TeaCourse.findAll({where:{tId:tID},attributes:['cId']});
-     let courseIds=[];
-     let data=[];
-     for(let tc of teaCourseFounds){
-         let cId=tc.cId;
-         let course=await Course.findOne({where:{id:cId}});
-         course=course.toJSON();
-         let imagesFound= await getImageNames({fId:cId,forT:constants.ForT_Course});
-         course.images=imagesFound;
-         data.push(course);
-     }
-     res.json({
-         count:data.length,
-         data:data,
-     })
- }));
+router.get(/^\/tea\/([0-9]+)\/course$/, applyEMW(async (req, res, next) => {
+    let tID = req.params[0];
+    let teaCourseFounds = await TeaCourse.findAll({ where: { tId: tID }, attributes: ['cId'] });
+    let courseIds = [];
+    let data = [];
+    for (let tc of teaCourseFounds) {
+        let cId = tc.cId;
+        let course = await Course.findOne({ where: { id: cId } });
+        course = course.toJSON();
+        let imagesFound = await getImageNames({ fId: cId, forT: constants.ForT_Course });
+        course.images = imagesFound;
+        data.push(course);
+    }
+    res.json({
+        count: data.length,
+        data: data,
+    })
+}));
 
 module.exports=router;
