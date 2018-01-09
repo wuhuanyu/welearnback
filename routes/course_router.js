@@ -9,11 +9,13 @@ import * as Constants from '../constants';
 import { isImage } from '../utils/check';
 import { defaultConfig } from '../config/uploadconfig';
 import { request } from 'https';
+import { STATUS_CODES } from 'http';
 const OP = require('sequelize').Op;
 const Teacher = require('../models/models').Teacher;
 const TeaCourse = require('../models/models').TeaCourse;
+const Student = require('../models/models').Stu;
 const errMW = require('../utils/error').errMW;
-const applyErrMiddleware=errMW;
+const applyErrMiddleware = errMW;
 
 const getTeacherName = async (options) => {
     let { tId } = options;
@@ -97,29 +99,29 @@ router.post('', defaultConfig, (req, res, next) => {
  * /api/v1/course/:id
  */
 
-router.get(/^\/([0-9]+)$/,errMW(async (req, res, next) => {
-            let id = req.params[0];
-            let course = await Course.findById(+id);
-            if(!course) throw getError(400,"No such resource");
-            let courseFound = course.toJSON();
-            let images = await getImageNames({ fT: Constants.FT_FILE, fId: course.id, forT: Constants.ForT_Course });
-            courseFound.images = images;
-            let teacher = await courseToTeacher({ cId: course.id });
-            courseFound.teacher = teacher;
-            res.json({
-                count: 1,
-                data: courseFound,
-            });
+router.get(/^\/([0-9]+)$/, errMW(async (req, res, next) => {
+    let id = req.params[0];
+    let course = await Course.findById(+id);
+    if (!course) throw getError(400, "No such resource");
+    let courseFound = course.toJSON();
+    let images = await getImageNames({ fT: Constants.FT_FILE, fId: course.id, forT: Constants.ForT_Course });
+    courseFound.images = images;
+    let teacher = await courseToTeacher({ cId: course.id });
+    courseFound.teacher = teacher;
+    res.json({
+        count: 1,
+        data: courseFound,
+    });
 }));
 
 /**
  * tested
  * http://localhost:3000/api/v1/course?name=Art
  */
-router.get('',applyErrMiddleware(async (req, res, next) => {
+router.get('', applyErrMiddleware(async (req, res, next) => {
     let n = req.query.name;
     let course = await Course.findOne({ where: { name: n } });
-    if(!course) throw getError(404,"No such resource");
+    if (!course) throw getError(404, "No such resource");
     let images = await getImageNames({ fT: Constants.FT_FILE, fId: course.id, forT: Constants.ForT_Course });
     let courseFound = course.toJSON();
     courseFound.images = images;
@@ -137,12 +139,12 @@ router.get('',applyErrMiddleware(async (req, res, next) => {
  * get /course/all
  */
 
-router.get('/all',applyErrMiddleware(async (req, res, next) => {
+router.get('/all', applyErrMiddleware(async (req, res, next) => {
     let { start, count } = req.query;
     let coursesFound = await Course.findAll({
         where: { id: { [OP.between]: [start, start + count] } },
     });
-    if(coursesFound.length===0) throw getError(404,"No more resources");
+    if (coursesFound.length === 0) throw getError(404, "No more resources");
     let courses = coursesFound.map(c => c.toJSON());
     for (let c of courses) {
         let imagesFound = await getImageNames({ forT: Constants.ForT_Course, fId: c.id });
@@ -213,23 +215,23 @@ router.post(/^\/([0-9]+)\/question$/, defaultConfig, (req, res, next) => {
  * get all questions of 12 course
  * 
  */
-router.get(/^\/([0-9]+)\/questions$/,applyErrMiddleware(async (req, res, next) => {
+router.get(/^\/([0-9]+)\/questions$/, applyErrMiddleware(async (req, res, next) => {
     let cId = req.params[0];
-   let questions=await (findByFieldFactory('question', ['cId'], { time: -1 }))([cId]);
-//    console.log(JSON.stringify(questions));
-   if(questions.length===0) throw getError(404,"No such resource");
-   let quesitonsWithImage=[];
-   for(let q of questions){
-       //cannot add arbitary property to question 
-       let images=await getImageNames({fId:+q._id,forT:Constants.ForT_Question});
-       let obj=q.toObject();
-       obj.images=images;
-       quesitonsWithImage.push(obj);
-   }
-   res.json({
-       count:questions.length,
-       data:quesitonsWithImage
-   })
+    let questions = await (findByFieldFactory('question', ['cId'], { time: -1 }))([cId]);
+    //    console.log(JSON.stringify(questions));
+    if (questions.length === 0) throw getError(404, "No such resource");
+    let quesitonsWithImage = [];
+    for (let q of questions) {
+        //cannot add arbitary property to question 
+        let images = await getImageNames({ fId: +q._id, forT: Constants.ForT_Question });
+        let obj = q.toObject();
+        obj.images = images;
+        quesitonsWithImage.push(obj);
+    }
+    res.json({
+        count: questions.length,
+        data: quesitonsWithImage
+    })
 }));
 
 
@@ -266,15 +268,24 @@ router.post(/^\/([0-9]+)\/([0-9]+)\/comment$/, (req, res, next) => {
  * /12/24/comments
  * get all comments of a question of a course
  */
-router.get(/^\/([0-9]+)\/([0-9]+)\/comments$/,applyErrMiddleware(async (req, res, next) => {
+router.get(/^\/([0-9]+)\/([0-9]+)\/comments$/, applyErrMiddleware(async (req, res, next) => {
     let c = req.params[0], q = req.params[1];
-    let comments=await findByFieldFactory('comment', ['qId'], { time: 1 })([q]);
-    if(comments.length===0) throw getError(400,"No such resource");
+    let comments = await findByFieldFactory('comment', ['qId'], { time: 1 })([q]);
+    if (comments.length === 0) throw getError(400, "No such resource");
+    let datas = [];
+    for (let comment of comments) {
+        let aT = comment.aT;
+        let aId = comment.aId;
+        let user = (aT === constants.ACC_T_Tea ? Teacher : Student);
+        let userFound =await user.findById(aId);
+        let data = comment.toJSON();
+        data.aName = userFound.name;
+        datas.push(data);
+    }
     res.json({
-        count:comments.length,
-        data:comments,
+        count: datas.length,
+        data: datas
     });
-
 }));
 export default router;
 
