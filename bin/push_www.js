@@ -10,17 +10,11 @@ app.set('port',normalizePort('3001'));
 const server=http.createServer(app);
 const io=require('socket.io')(server);
 
-// io.engine.generateId=async (req)=>{
-// // let stu= await Student.findOne({where:{id:0}});
-// // return stu.id;
-// }
-io.on('connect',async (socket)=>{
 
-// let stu= await  Student.findOne({where:{id:1}});
-// socket.io.engine.id=stu.id;
+io.on('connect',async (socket)=>{
     console.log('a user connected');
-    // console.log(JSON.stringify(socket.request.headers));
-    // console.log(util.inspect(socket));
+    let found=await Student.findOne({where:{id:1}});
+    console.log(socket.handshake.headers);   
 });
 
 
