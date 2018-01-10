@@ -13,9 +13,10 @@ module.exports = {
       }], {});
     */
     return queryInterface.bulkInsert('stus',[
-      {name:'Stack',password:"pass",gender:21},
-      {name:'Kate',password:"pass",gender:22},
-      {name:'Perry',password:"pass",gender:22},
+      {name:'Stack',password:"1a1dc91c907325c69271ddf0c944bc72",gender:21},
+      {name:'Kate',password:"1a1dc91c907325c69271ddf0c944bc72",gender:22},
+      {name:'Perry',password:"1a1dc91c907325c69271ddf0c944bc72",gender:22},
+      {name:'mike',password:"1a1dc91c907325c69271ddf0c944bc72",gender:21},
     ])
   },
 

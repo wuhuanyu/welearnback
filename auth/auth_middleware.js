@@ -1,8 +1,10 @@
-const applyEMW=require('../utils/error');
+
+const applyEMW=require('../utils/async_middleware');
 const getErr=require('../utils/error');
 const Teacher=require('../models/models').Teacher;
-const Student=require('../models/models').Student;
+const Student=require('../models/models').Stu;
 const md5=require('md5');
+const constants=require('../constants');
 /**
  * basic auth 
  * https://developer.mozilla.org/en-US/docs/Web/HTTP/Authentication
@@ -10,10 +12,11 @@ const md5=require('md5');
 
 const checkAuth=async (isTeacher,name,pass)=>{
     let user=isTeacher?Teacher:Student;
-    let found= await user.findOne({where:{name:name,password:md5(password)},attri});
+    // console.log(isTeacher);
+    let found= await user.findOne({where:{name:name,password:md5(pass)}});
     return found;
 }
-const teacher_auth=applyEMW(async (req,res,next)=>{
+module.exports.teacher_auth=applyEMW(async (req,res,next)=>{
     req.auth={};
     let authorization=req.get('authorization');
     if(!authorization) {
@@ -22,10 +25,9 @@ const teacher_auth=applyEMW(async (req,res,next)=>{
         // res.status(401).send("Authorization Required");
     }
     else{
-        credentials=new Buffer(authorization.split(" ").pop(),"base64").toString("ascii").split(":");
-        let name=credentials[0],pass=credentials=[1];
+       let credentials=new Buffer(authorization.split(" ").pop(),"base64").toString("ascii").split(":");
+        let name=credentials[0],pass=credentials[1];
         let found=await checkAuth(true,name,pass);
-        console.log(JSON.stringify(found));
         if(found) {
             req.auth.id=found.id;
             req.auth.name=found.name;
@@ -40,8 +42,8 @@ const teacher_auth=applyEMW(async (req,res,next)=>{
 /**
  * 之所以分开写，是考虑到将来 老师的验证可能需要更复杂的逻辑
  */
-const student_auth=applyEMW(async (req,res,next)=>{
- req.auth={};
+module.exports.student_auth=applyEMW(async (req,res,next)=>{
+    req.auth={};
     let authorization=req.get('authorization');
     if(!authorization) {
         res.set('WWW-Authenticate',"Basic realm=\"Authorization Required\"")
@@ -49,9 +51,10 @@ const student_auth=applyEMW(async (req,res,next)=>{
         // res.status(401).send("Authorization Required");
     }
     else{
-        credentials=new Buffer(authorization.split(" ").pop(),"base64").toString("ascii").split(":");
-        let name=credentials[0],pass=credentials=[1];
-        let found=await checkAuth(true,name,pass);
+       let credentials=new Buffer(authorization.split(" ").pop(),"base64").toString("ascii").split(":");
+       console.log(pass);
+        let name=credentials[0],pass=credentials[1];
+        let found=await checkAuth(false,name,pass);
         console.log(JSON.stringify(found));
         if(found) {
             req.auth.id=found.id;
@@ -63,6 +66,42 @@ const student_auth=applyEMW(async (req,res,next)=>{
         else throw getErr(403,"Access Denied (incorrect credentials)");
     }
 });
-module.exports={
-    teacher_auth,
-}
+
+
+/**
+ * 
+ * @param {*} req  requst must have type field
+ * @param {*} res 
+ * @param {*} next 
+ */
+module.exports.common_auth=applyEMW(async (req,res,next)=>{
+    req.auth={};
+    let type=+req.body.type;
+    let authorization=req.get('authorization');
+    if(!authorization) {
+        res.set('WWW-Authenticate',"Basic realm=\"Authorization Required\"")
+        throw getErr(401,"Authorization Required");
+    }
+    else{
+        let credentials=new Buffer(authorization.split(" ").pop(),"base64").toString("ascii").split(":");
+        let name=credentials[0],pass=credentials[1];
+        let found=await checkAuth(type===constants.ACC_T_Tea,name,pass);
+        if(found) {
+            req.auth.id=found.id;
+            req.auth.name=found.name;
+            req.auth.password=found.password;
+            req.auth.gender=found.gender;
+            req.auth.type=type;
+            next();
+        }
+        else throw getErr(403,"Access Denied (incorrect credentials)");
+    }
+ 
+});
+// module.exports.selectAuth=(req,res,next)=>{
+//     let requestInitiatorType=req.body.type;
+//     if(requestInitiatorType in [constants.ACC_T_Stu,constants.ACC_T_Tea]){
+//         req.check_auth=
+//     }
+    
+// }

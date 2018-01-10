@@ -10,32 +10,32 @@ import * as constants from '../constants';
 import { ACC_T_Stu, ACC_T_Tea } from '../constants';
 const applyEMW = require('../utils/error').errMW;
 import { getImageNames } from './course_router';
+import { teacher_auth } from '../auth/auth_middleware';
 const Course = require('../models/models').Course;
 const TAG = "[AccRouter]: ";
 const TeaCourse = require('../models/models').TeaCourse;
-
+const stu_auth = require('../auth/auth_middleware').student_auth;
 
 /**
  * login
  * /acc
  */
-router.post('', applyEMW(async((req, res, next) => {
-    let uBody = req.body, name = uBody.name, password = md5(uBody.password), type = +uBody.type,action=uBody.action;
-    if (!action.toLowerCase() in ['login','logout'])
-    throw getError(404,"Illegal action");
+router.post('', applyEMW(async (req, res, next) => {
+    let uBody = req.body, name = uBody.name, password = md5(uBody.password), type = +uBody.type, action = uBody.action;
+    if (!action.toLowerCase() in ['login', 'logout'])
+        throw getError(404, "Illegal action");
     let user = (type === ACC_T_Stu ? Stu : Teacher);
-
     let found = await user.findOne({ where: { name: name, password: password } });
+    let updated;
     if (!found) throw getError(401, "Wrong credentials");
-    
-    else let updated = await found.update({
-        login: action==='login'
+    else updated = await found.update({
+        login: action === 'login'
     });
     res.status(200).json({
         result: updated.id,
-        msg: `${action} successfully` 
+        msg: `${action} successfully`
     });
-    })));
+}));
 
 /**
  * student signup
@@ -84,8 +84,8 @@ router.put('/stu', (req, res, next) => {
  * }
  * 
  */
-
-router.post(/^\/stu\/([0-9]+)\/course$/, applyEMW(async (req, res, next) => {
+router.post(/^\/stu\/([0-9]+)\/course$/, stu_auth, applyEMW(async (req, res, next) => {
+    // console.log(req.auth);
     let cS = req.body.cs, sID = req.params[0];
     if (!cS) throw getError(400, "Bad request,read api first");
     if (!Array.isArray(cS)) throw getError(400, "Request body invalid");
@@ -110,22 +110,25 @@ router.post(/^\/stu\/([0-9]+)\/course$/, applyEMW(async (req, res, next) => {
  * /stu/12/course
  * tested
  */
-router.get(/^\/stu\/([0-9]+)\/course$/, (req, res, next) => {
+router.get(/^\/stu\/([0-9]+)\/course$/, applyEMW(async (req, res, next) => {
     let sID = req.params[0];
-    console.log(TAG + sID);
-    StuCourse.findAll({ where: { sId: sID } }).then(datas => {
-        if (datas.length != 0) {
-            res.status(200).json({
-                count: datas.length,
-                data: datas,
-            })
-        } else {
-            next(getError(404, "Not found"));
-        }
-    }).catch(e => {
-        next(getError(400, e.message));
-    });
-});
+    let stu_courses = await StuCourse.findAll({ where: { sId: sID }, attributes: ['sId', 'cId'] });
+    if (stu_courses.length === 0) throw getError(404, "You have not select courses");
+    let courseIds = [];
+    let datas = [];
+    for (let sc of stu_courses) {
+        let cId = sc.cId;
+        let course = await Course.findOne({ where: { id: cId } });
+        course = course.toJSON();
+        let imagesFound = await getImageNames({ fId: cId, forT: constants.ForT_Course });
+        course.images = imagesFound;
+        datas.push(course);
+    }
+    res.json({
+        count: stu_courses.length,
+        data: datas
+    })
+}));
 
 
 /**
@@ -187,27 +190,25 @@ router.get('/tea/:id', (req, res, next) => {
  * TODO: check if exists; 
  * tested
  */
-router.post('/tea/:id/course', (req, res, next) => {
-    let cIDs = req.body.cs, tID = req.params.id;
-    if (Array.isArray(cIDs)) {
-        let savedPromsie = cIDs.map(cid => {
-            let newTC = TC.build({
-                tId: tID,
-                cId: cid,
-            });
-            return newTC.save();
-        });
-        Promise.all(savedPromsie).then((saved) => {
-            res.status(200).json({
-                msg: "Course Selected Successfully"
-            });
-        }).catch(e => {
-            next(getError(400, e.message));
-        })
-    } else {
-        //    next(getError(400,"cs must be array"));
+router.post('/tea/:id/course',teacher_auth,applyEMW(async (req, res, next) => {
+    let cS = req.body.cs, tID = req.params.id;
+    if (!cS) throw getError(400, "Bad request,read api first");
+    if (!Array.isArray(cS)) throw getError(400, "Request body invalid");
+    let results = [];
+    for (let cid of cS) {
+        if (cid) {
+            let foundRecord = await TeaCourse.findOne({ where: { tId:tID, cId: +cid } });
+            if (foundRecord) throw getError(400, "Record exists already");
+            let result = await TeaCourse.build({ tId:tID, cId: cid }).save();
+            results.push(result);
+        }
     }
-})
+    if (results.length === cS.length) {
+        res.json({
+            msg: "Record inserted successfully"
+        });
+    }
+}));
 
 
 /**

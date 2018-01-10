@@ -26,7 +26,6 @@ server.listen(normalizePort('3001'));
 server.on('error',onError);
 server.on('listening',onListening);
 
-
 app.post('/push',(req,res,next)=>{
   io.emit('msg',JSON.stringify(req.body));
   res.json({

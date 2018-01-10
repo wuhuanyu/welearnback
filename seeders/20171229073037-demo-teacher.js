@@ -13,11 +13,11 @@ module.exports = {
       }], {});
     */
     return queryInterface.bulkInsert('teachers',[
-      {name:'MrZhao',password:"pass",gender:21},
-      {name:'MrsQian',password:"pass",gender:22},
-      {name:'MrsWu',password:"pass",gender:22},
-      {name:'MrWu',password:"pass",gender:21},
-      {name:'MrSiMa',password:"pass",gender:21},
+      {name:'MrZhao',password:"1a1dc91c907325c69271ddf0c944bc72",gender:21},
+      {name:'MrsQian',password:"1a1dc91c907325c69271ddf0c944bc72",gender:22},
+      {name:'MrsWu',password:"1a1dc91c907325c69271ddf0c944bc72",gender:22},
+      {name:'MrWu',password:"1a1dc91c907325c69271ddf0c944bc72",gender:21},
+      {name:'MrSiMa',password:"1a1dc91c907325c69271ddf0c944bc72",gender:21},
     ]);
   },
 

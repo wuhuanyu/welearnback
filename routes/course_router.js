@@ -8,14 +8,20 @@ const _File = require('../models/models').UploadFile;
 import * as Constants from '../constants';
 import { isImage } from '../utils/check';
 import { defaultConfig } from '../config/uploadconfig';
-import { request } from 'https';
-import { STATUS_CODES } from 'http';
+import { common_auth } from '../auth/auth_middleware';
+import { FT_FILE } from '../constants';
 const OP = require('sequelize').Op;
 const Teacher = require('../models/models').Teacher;
 const TeaCourse = require('../models/models').TeaCourse;
 const Student = require('../models/models').Stu;
 const errMW = require('../utils/error').errMW;
 const applyErrMiddleware = errMW;
+const student_auth = require('../auth/auth_middleware').student_auth;
+const teacher_auth = require('../auth/auth_middleware').teacher_auth;
+const commont_auth = require('../auth/auth_middleware').common_auth;
+
+
+
 
 const getTeacherName = async (options) => {
     let { tId } = options;
@@ -238,30 +244,68 @@ router.get(/^\/([0-9]+)\/questions$/, applyErrMiddleware(async (req, res, next) 
 /**
  * 
  *  /12/12/comment
+ * TODO: test  ,
  */
-router.post(/^\/([0-9]+)\/([0-9]+)\/comment$/, (req, res, next) => {
-    let c = req.params[0], q = req.params[1];
+router.post(/^\/([0-9]+)\/(w+)\/comment$/, common_auth, defaultConfig, applyErrMiddleware(async (req, res, next) => {
+    let c = req.params[0], q = req.params[1], author_type = req.auth.type;
+    if (!(Comment.checkedFiles.every(f => req.body.indexOf(f) > -1)))
+        throw getError(400, "Wrong comment error");
+
     if ('body' in req.body) {
         let body = req.body;
         let newC = new Comment({
-            qId: q,
-            aT: req.auth.type,
+            forT: constants.ForT_Question,
+            forId: q,
+            //must have type
+            aT: author_type,
             aId: req.auth.id,
             body: body.body,
             time: new Date().getTime()
         });
-        newC.save().then((savedC) => {
+        let savedC = await newC.save();
+
+        /**
+         * upload file processing
+         */
+        let files = req.files['upload']
+        let savedFiles = [];
+        if (files && (files.length !== 0)) {
+            //there is file
+            for (let file of files) {
+                let { originalname, size, filename, path } = file;
+                let newF = _File.build({
+                    aT: author_type,
+                    aId: req.auth.id,
+                    forT: constants.ForT_Question,
+                    fId: q,
+                    fT: (isImage(originalname) ? constants.FT_IMAGE : constants.FT_IMAGE),
+                    original_name: originalname,
+                    name: filename,
+                    dir: path
+                });
+                savedFiles.push(await newF.saved());
+            }
+        };
+        //if there is file,
+        if (files && (files.length !== 0)) {
+            //check if every files saved;
+            if (files.length === savedFiles === 0) {
+                res.status(200).json({
+                    msg: "Comment Successfully!",
+                    result: savedC.id,
+                });
+            }
+            else getError(500, "Something happens when storing file");
+        }
+        else {
             res.status(200).json({
                 msg: "Comment Successfully!",
                 result: savedC.id,
-            })
-        }).catch(e => {
-            next(getError(500, e.message));
-        })
-    } else {
-        next(getError(400, "Wrong Comment Format"));
+            });
+        }
+
     }
-});
+}));
 
 /**
  * /course/question/comments
@@ -270,16 +314,18 @@ router.post(/^\/([0-9]+)\/([0-9]+)\/comment$/, (req, res, next) => {
  */
 router.get(/^\/([0-9]+)\/([0-9]+)\/comments$/, applyErrMiddleware(async (req, res, next) => {
     let c = req.params[0], q = req.params[1];
-    let comments = await findByFieldFactory('comment', ['qId'], { time: 1 })([q]);
+    let comments = await findByFieldFactory('comment', ['qId', 'cId'], { time: 1 })([q, c]);
     if (comments.length === 0) throw getError(400, "No such resource");
     let datas = [];
     for (let comment of comments) {
         let aT = comment.aT;
         let aId = comment.aId;
         let user = (aT === constants.ACC_T_Tea ? Teacher : Student);
-        let userFound =await user.findById(aId);
+        let userFound = await user.findById(aId);
         let data = comment.toJSON();
+        let images = await getImageNames({ forT: constants.ForT_Comment, fId: comment._id });
         data.aName = userFound.name;
+        data.images = images;
         datas.push(data);
     }
     res.json({
