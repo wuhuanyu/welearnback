@@ -1,7 +1,13 @@
 'use strict';
 module.exports = (sequelize, DataTypes) => {
   var bulletin = sequelize.define('bulletin', {
-    body: DataTypes.STRING
+    course_id: DataTypes.INTEGER,
+    publisher_id: DataTypes.INTEGER,
+    body: DataTypes.STRING,
+    time: DataTypes.INTEGER,
+    
+  },{
+    timestamp:false,
   }, {
     classMethods: {
       associate: function(models) {

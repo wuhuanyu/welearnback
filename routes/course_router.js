@@ -382,6 +382,17 @@ router.get(/^\/([0-9]+)\/(\w+)\/comments$/, applyErrMiddleware(async (req, res, 
         data: datas
     });
 }));
+
+
+/**
+ * post bulletin
+ */
+router.post(/^\/([0-9]+)\/bulletin$/,teacher_auth,applyErrMiddleware(async (req,res,next)=>{
+    let auth=req.auth;
+}));
+
+
+
 export default router;
 
 export {getImageNames};
