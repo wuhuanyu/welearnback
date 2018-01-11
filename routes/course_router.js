@@ -10,6 +10,7 @@ import { isImage } from '../utils/check';
 import { defaultConfig } from '../config/uploadconfig';
 import { common_auth } from '../auth/auth_middleware';
 import { FT_FILE } from '../constants';
+import { read } from 'fs';
 const OP = require('sequelize').Op;
 const Teacher = require('../models/models').Teacher;
 const TeaCourse = require('../models/models').TeaCourse;
@@ -44,6 +45,7 @@ const courseToTeacher = async (options) => {
  */
 const getImageNames = async (options) => {
     let { forT, fId } = options;
+    console.log(fId);
     let images = await _File.findAll({
         where: { forT: forT, fId: fId, fT: Constants.FT_IMAGE },
         attributes: ['name']
@@ -62,7 +64,7 @@ const getImageNames = async (options) => {
  * tested
  * 
  */
-router.post('', defaultConfig, (req, res, next) => {
+router.post('',teacher_auth, defaultConfig, (req, res, next) => {
     let b = req.body;
     // console.log(JSON.stringify(b));
     let files = req.files['upload'], auth = req.auth;
@@ -244,12 +246,13 @@ router.get(/^\/([0-9]+)\/questions$/, applyErrMiddleware(async (req, res, next) 
 /**
  * 
  *  /12/12/comment
- * TODO: test  ,
+ * TODO: add file support  ,
  */
-router.post(/^\/([0-9]+)\/(w+)\/comment$/, common_auth, defaultConfig, applyErrMiddleware(async (req, res, next) => {
+
+
+router.post(/^\/([0-9]+)\/(\w+)\/comment$/, common_auth,defaultConfig,applyErrMiddleware(async (req, res, next) => {
     let c = req.params[0], q = req.params[1], author_type = req.auth.type;
-    if (!(Comment.checkedFiles.every(f => req.body.indexOf(f) > -1)))
-        throw getError(400, "Wrong comment error");
+    console.log(JSON.stringify(req.params)); 
 
     if ('body' in req.body) {
         let body = req.body;
@@ -267,42 +270,42 @@ router.post(/^\/([0-9]+)\/(w+)\/comment$/, common_auth, defaultConfig, applyErrM
         /**
          * upload file processing
          */
-        let files = req.files['upload']
-        let savedFiles = [];
-        if (files && (files.length !== 0)) {
-            //there is file
-            for (let file of files) {
-                let { originalname, size, filename, path } = file;
-                let newF = _File.build({
-                    aT: author_type,
-                    aId: req.auth.id,
-                    forT: constants.ForT_Question,
-                    fId: q,
-                    fT: (isImage(originalname) ? constants.FT_IMAGE : constants.FT_IMAGE),
-                    original_name: originalname,
-                    name: filename,
-                    dir: path
-                });
-                savedFiles.push(await newF.saved());
-            }
-        };
-        //if there is file,
-        if (files && (files.length !== 0)) {
-            //check if every files saved;
-            if (files.length === savedFiles === 0) {
-                res.status(200).json({
-                    msg: "Comment Successfully!",
-                    result: savedC.id,
-                });
-            }
-            else getError(500, "Something happens when storing file");
-        }
-        else {
+        // let files = req.files['upload'];
+        // let savedFiles = [];
+        // if (files && (files.length !== 0)) {
+        //     //there is file
+        //     for (let file of files) {
+        //         let { originalname, size, filename, path } = file;
+        //         let newF = _File.build({
+        //             aT: author_type,
+        //             aId: req.auth.id,
+        //             forT: constants.ForT_Question,
+        //             fId: q,
+        //             fT: (isImage(originalname) ? constants.FT_IMAGE : constants.FT_FILE),
+        //             original_name: originalname,
+        //             name: filename,
+        //             dir: path
+        //         });
+        //         console.log('file');
+        //         savedFiles.push(await newF.save());
+        //     }
+        // };
+        // //if there is file,
+        // if (files && (files.length !== 0)) {
+        //     //check if every files saved;
+        //     if (files.length === savedFiles === 0) {
+        //         res.status(200).json({
+        //             msg: "Comment Successfully!",
+        //             result: savedC.id,
+        //         });
+        //     }
+        //     else getError(500, "Something happens when storing file");
+        // }
+        // else 
             res.status(200).json({
                 msg: "Comment Successfully!",
                 result: savedC.id,
             });
-        }
 
     }
 }));
@@ -311,10 +314,11 @@ router.post(/^\/([0-9]+)\/(w+)\/comment$/, common_auth, defaultConfig, applyErrM
  * /course/question/comments
  * /12/24/comments
  * get all comments of a question of a course
- */
+ * TODO:add file 
+ */ 
 router.get(/^\/([0-9]+)\/([0-9]+)\/comments$/, applyErrMiddleware(async (req, res, next) => {
     let c = req.params[0], q = req.params[1];
-    let comments = await findByFieldFactory('comment', ['qId', 'cId'], { time: 1 })([q, c]);
+    let comments = await findByFieldFactory('comment', ['forT', 'forId'], { time: 1 })([constants.ForT_Question,q ]);
     if (comments.length === 0) throw getError(400, "No such resource");
     let datas = [];
     for (let comment of comments) {
@@ -323,9 +327,10 @@ router.get(/^\/([0-9]+)\/([0-9]+)\/comments$/, applyErrMiddleware(async (req, re
         let user = (aT === constants.ACC_T_Tea ? Teacher : Student);
         let userFound = await user.findById(aId);
         let data = comment.toJSON();
-        let images = await getImageNames({ forT: constants.ForT_Comment, fId: comment._id });
+        // console.log(data);
+        // let images = await getImageNames({ forT: constants.ForT_Comment, fId: comment._id });
         data.aName = userFound.name;
-        data.images = images;
+        // data.images = images;
         datas.push(data);
     }
     res.json({

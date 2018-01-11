@@ -6,7 +6,8 @@ import CourseRouter from '../routes/course_router';
 const FileUploadRouter = require('../routes/filerouter');
 
 
-
+// ApiApp.use(bodyParser.json());
+// ApiApp.use(bodyParser.urlencoded({ extended: true }));
 // const fileUpload=require('express-fileupload');
 
 
