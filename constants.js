@@ -27,6 +27,29 @@ export const ForT_Ans=44;
 export const FT_FILE=52;
 export const FT_IMAGE=53;
 
+/**
+ * events 
+ * 以课程为话题,以下列的事情为代码 ，比如 数学课发布了新的习题 /数学   payload: {code:63,msg:""}
+ */
+export const new_comment_course=61;
+export const new_comment_course_by_teacher=62;
+
+export const new_question=63;
+
+/**
+ * /数学 payload:{code:64,question_id:id,data:{}}
+ */
+export const new_comment_question=64;
+
+export const new_comment_question_by_teacher=65;
+
+/**
+ * /数学
+ */
+export const new_message=66;
+
+export const bulletin=67;
+
 
 
 

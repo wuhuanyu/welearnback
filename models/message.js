@@ -6,12 +6,6 @@ const Course=require('./models').Course;
 const Teacher=require('./models').Teacher;
 
 const Message=db.define("message",{
-    // id:{
-    //     type:Sequelize.INTEGER,
-    //     autoIncrement:true,
-    //     primaryKey:true,
-    //     allowNull:false,
-    // },
     sender_id:{
         type:Sequelize.INTEGER,
         allowNull:false,
