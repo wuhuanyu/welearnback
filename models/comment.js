@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const CommentSchema = mongoose.Schema({
+    _id:String,
     //for question or course
     forT:Number,
     // question id or course id 
