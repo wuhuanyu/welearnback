@@ -20,6 +20,9 @@ let TeaCourse = db.import(__dirname + '/teacourse.js');
 let UploadFile=db.import(__dirname+'/fileupload.js');
 UploadFile.checkedFields=['aT','aId','forT','fId','fT','original_name','name','dir'];
 
+let Bulletin=db.import(__dirname+'/bulletin.js');
+// Bulletin.checkedFields=['body']
+
 module.exports = {
     Question: Question,
     Comment: Comment,
@@ -29,6 +32,7 @@ module.exports = {
     TeaCourse: TeaCourse,
     StuCourse:StuCourse,
     UploadFile:UploadFile,
+    Bulletin:Bulletin,
     // Message:require('./message'),
 };
 

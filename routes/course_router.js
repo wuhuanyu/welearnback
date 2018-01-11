@@ -383,15 +383,8 @@ router.get(/^\/([0-9]+)\/(\w+)\/comments$/, applyErrMiddleware(async (req, res, 
     });
 }));
 
-
-/**
- * post bulletin
- */
-router.post(/^\/([0-9]+)\/bulletin$/,teacher_auth,applyErrMiddleware(async (req,res,next)=>{
-    let auth=req.auth;
-}));
-
-
+// TODO: check url 
+router.use(/^\/([0-9]+)\/bulletin$/,require('./bulletin_router'));
 
 export default router;
 
