@@ -44,6 +44,9 @@ module.exports.teacher_auth=applyEMW(async (req,res,next)=>{
  */
 module.exports.student_auth=applyEMW(async (req,res,next)=>{
     req.auth={};
+    console.log('----------student_auth--------');
+    console.log('--------req.body--------');
+    console.log(JSON.stringify(req.body));
     let authorization=req.get('authorization');
     if(!authorization) {
         res.set('WWW-Authenticate',"Basic realm=\"Authorization Required\"")
@@ -75,12 +78,12 @@ module.exports.student_auth=applyEMW(async (req,res,next)=>{
  * @param {*} next 
  */
 module.exports.common_auth=applyEMW(async (req,res,next)=>{
-    console.log('------auth-----');
+    // console.log('\n ----common_auth-----');
     req.auth={};
-    let type=+req.body.type;
-    console.log('request body-------');
-    console.log(JSON.stringify(req.body));
-    // console.log(type);
+    let type= +req.body.type;
+    // console.log('request body-------');
+
+    // console.log(JSON.stringify(req.body));
     let authorization=req.get('authorization');
     if(!authorization) {
         res.set('WWW-Authenticate',"Basic realm=\"Authorization Required\"")

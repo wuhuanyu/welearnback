@@ -8,7 +8,6 @@ const MessageFields=['receiverId','body'];
 const getError=require('../utils/error');
 const TeaCourse=require('../models/models').TeaCourse;
 
-// TODO: authentication utility
 /**
  *  must be teacher
  *  authentication assumed req.auth

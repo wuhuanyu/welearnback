@@ -8,7 +8,6 @@ const _ = require('lodash');
 
 
 /**
- * TODO:upload image
  */
 router.post('', (req, res, next) => {
     let keys = Object.keys(req.body);

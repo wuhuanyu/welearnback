@@ -187,7 +187,6 @@ router.get('/tea/:id', (req, res, next) => {
 /**
  * add course to teacher with id 1 
  * post /tea/1/course req.body.{cs:[1,2,3]}
- * TODO: check if exists; 
  * tested
  */
 router.post('/tea/:id/course',teacher_auth,applyEMW(async (req, res, next) => {

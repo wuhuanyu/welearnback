@@ -20,7 +20,8 @@ const applyErrMiddleware = errMW;
 const student_auth = require('../auth/auth_middleware').student_auth;
 const teacher_auth = require('../auth/auth_middleware').teacher_auth;
 const commont_auth = require('../auth/auth_middleware').common_auth;
-const uuid=require('uuid/v1');
+const uuid = require('uuid/v1');
+const md5=require('md5');
 
 const getTeacherName = async (options) => {
     let { tId } = options;
@@ -169,7 +170,6 @@ router.get('/all', applyErrMiddleware(async (req, res, next) => {
  * req.auth.{tId,name,password}
  * post question of a certain course
  * /23/question
- * TODO: test file upload,image upload 
  */
 router.post(/^\/([0-9]+)\/question$/, teacher_auth, defaultConfig, applyErrMiddleware((req, res, next) => {
     console.log(TAG);
@@ -178,9 +178,10 @@ router.post(/^\/([0-9]+)\/question$/, teacher_auth, defaultConfig, applyErrMiddl
     let auth = req.auth;
     let files = req.files['upload'];
     //check fields
+    let question_id=md5(new Date().getTime()+req.bodt.body);
     if (['type', 'body'].every(f => Object.keys(b).indexOf(f) > -1)) {
         let newQ = new Question({
-            _id: md5(new Date().getTime()+b.body),
+            _id: question_id,
             type: b.type,
             cId: cid,
             tId: req.auth.id,
@@ -222,38 +223,42 @@ router.post(/^\/([0-9]+)\/question$/, teacher_auth, defaultConfig, applyErrMiddl
  * post ans to 
  * /course/:courseId/:questionId/ans
  */
-router.post(/^\/([0-9]+)\/(\w+)\/ans$/,teacher_auth,defaultConfig,applyErrMiddleware( async (req, res, next) => {
-    let auth=req.auth;
-    let courseId=req.params[0],questionId=req.params[1];
-    let files=req.files['upload'];
-    let imageNames=files.map(f=>f.originalname).filter(fileName=>isImage(fileName));
-    let fileNames=files.map(f=>f.originalname).filter(fileName=>!isImage(fileName));
-    let ans_id=uuid();
-    let updated=await Question.update({_id:questionId},{$push:{anss:{
-        _id:ans_id,
-        body:req.body.body,
-        files:fileNames,
-        images:imageNames,
-    }}});
-    let savedFiles=[];
-    for(let file of files){
-        let {originalname,size,filename,path}=file;
-        let newF=_File.build({
-                    aT: Constants.ACC_T_Tea,
-                    aId: auth.id,
-                    forT: Constants.ForT_Question,
-                    fId: ans_id,
-                    fT: (isImage(originalname) ? Constants.FT_IMAGE : Constants.FT_FILE),
-                    original_name: originalname,
-                    name: filename,
-                    dir: path,
+router.post(/^\/([0-9]+)\/(\w+)\/ans$/, teacher_auth, defaultConfig, applyErrMiddleware(async (req, res, next) => {
+    let auth = req.auth;
+    let courseId = req.params[0], questionId = req.params[1];
+    let files = req.files['upload'];
+    let imageNames = files.map(f => f.originalname).filter(fileName => isImage(fileName));
+    let fileNames = files.map(f => f.originalname).filter(fileName => !isImage(fileName));
+    let ans_id = md5(new Date().getTime()+req.body.body);
+    let updated = await Question.update({ _id: questionId }, {
+        $push: {
+            anss: {
+                _id: ans_id,
+                body: req.body.body,
+                files: fileNames,
+                images: imageNames,
+            }
+        }
+    });
+    let savedFiles = [];
+    for (let file of files) {
+        let { originalname, size, filename, path } = file;
+        let newF = _File.build({
+            aT: Constants.ACC_T_Tea,
+            aId: auth.id,
+            forT: Constants.ForT_Question,
+            fId: ans_id,
+            fT: (isImage(originalname) ? Constants.FT_IMAGE : Constants.FT_FILE),
+            original_name: originalname,
+            name: filename,
+            dir: path,
         });
-        let savedF= await newF.save();
+        let savedF = await newF.save();
         savedFiles.push(savedF.id);
     }
     res.json({
-        result:updated,
-        msg:"Answer upload successfully",
+        result: updated,
+        msg: "Answer upload successfully",
     });
     // res.end();
 
@@ -282,26 +287,18 @@ router.get(/^\/([0-9]+)\/questions$/, applyErrMiddleware(async (req, res, next) 
 }));
 
 /**
- * post  /course/12/question
- */
-
-
-/**
  * 
  *  /12/12/comment
- * TODO: add file support  ,
+ * must specify user type 
  */
-
-
-router.post(/^\/([0-9]+)\/(\w+)\/comment$/, common_auth, defaultConfig, applyErrMiddleware(async (req, res, next) => {
+router.post(/^\/([0-9]+)\/(\w+)\/comment$/, defaultConfig, common_auth, applyErrMiddleware(async (req, res, next) => {
+    console.log('-------post comment to question--------');
     let c = req.params[0], q = req.params[1], author_type = req.auth.type;
-    console.log(JSON.stringify(req.params));
-
-    if ('body' in req.body) {
-        let comment_id=uuid();
+        let comment_id = md5(new Date().getTime()+req.body.body);
+        console.log(JSON.stringify(req.body));
         let body = req.body;
         let newC = new Comment({
-            _id:comment_id,
+            _id: comment_id,
             forT: constants.ForT_Question,
             forId: q,
             //must have type
@@ -315,53 +312,55 @@ router.post(/^\/([0-9]+)\/(\w+)\/comment$/, common_auth, defaultConfig, applyErr
         /**
          * upload file processing
          */
-        // let files = req.files['upload'];
-        // let savedFiles = [];
-        // if (files && (files.length !== 0)) {
-        //     //there is file
-        //     for (let file of files) {
-        //         let { originalname, size, filename, path } = file;
-        //         let newF = _File.build({
-        //             aT: author_type,
-        //             aId: req.auth.id,
-        //             forT: constants.ForT_Question,
-        //             fId: q,
-        //             fT: (isImage(originalname) ? constants.FT_IMAGE : constants.FT_FILE),
-        //             original_name: originalname,
-        //             name: filename,
-        //             dir: path
-        //         });
-        //         console.log('file');
-        //         savedFiles.push(await newF.save());
-        //     }
-        // };
-        // //if there is file,
-        // if (files && (files.length !== 0)) {
-        //     //check if every files saved;
-        //     if (files.length === savedFiles === 0) {
-        //         res.status(200).json({
-        //             msg: "Comment Successfully!",
-        //             result: savedC.id,
-        //         });
-        //     }
-        //     else getError(500, "Something happens when storing file");
-        // }
-        // else 
-        res.status(200).json({
-            msg: "Comment Successfully!",
-            result: savedC._id,
-        });
+        let files = req.files['upload'];
+        let savedFiles = [];
+        if (files && (files.length !== 0)) {
+            //there is file
+            for (let file of files) {
+                let { originalname, size, filename, path } = file;
+                let newF = _File.build({
+                    aT: author_type,
+                    aId: req.auth.id,
+                    forT: constants.ForT_Comment,
+                    fId: comment_id,
+                    fT: (isImage(originalname) ? constants.FT_IMAGE : constants.FT_FILE),
+                    original_name: originalname,
+                    name: filename,
+                    dir: path
+                });
+                console.log('file');
+                savedFiles.push(await newF.save());
+            }
+        };
+        //if there is file,
+        if (files && (files.length !== 0)) {
+            console.log('there is file')
+            //check if every files saved;
+            if (files.length === savedFiles.length) {
+                res.status(200).json({
+                    msg: "Comment Successfully!",
+                    result: savedC.id,
+                });
+            }
+            else throw getError(500, "Something happens when storing file");
+        }
+        else
+            res.status(200).json({
+                msg: "Comment Successfully!",
+                result: savedC._id,
+            });
 
     }
-}));
+// }
+)
+);
 
 /**
  * /course/question/comments
  * /12/24/comments
  * get all comments of a question of a course
- * TODO:add file 
  */
-router.get(/^\/([0-9]+)\/([0-9]+)\/comments$/, applyErrMiddleware(async (req, res, next) => {
+router.get(/^\/([0-9]+)\/(\w+)\/comments$/, applyErrMiddleware(async (req, res, next) => {
     let c = req.params[0], q = req.params[1];
     let comments = await findByFieldFactory('comment', ['forT', 'forId'], { time: 1 })([constants.ForT_Question, q]);
     if (comments.length === 0) throw getError(400, "No such resource");
@@ -373,9 +372,9 @@ router.get(/^\/([0-9]+)\/([0-9]+)\/comments$/, applyErrMiddleware(async (req, re
         let userFound = await user.findById(aId);
         let data = comment.toJSON();
         // console.log(data);
-        // let images = await getImageNames({ forT: constants.ForT_Comment, fId: comment._id });
+        let images = await getImageNames({ forT: constants.ForT_Comment, fId: comment._id });
         data.aName = userFound.name;
-        // data.images = images;
+        data.images = images;
         datas.push(data);
     }
     res.json({
