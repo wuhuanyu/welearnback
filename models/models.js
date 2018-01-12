@@ -34,6 +34,7 @@ module.exports = {
     UploadFile:UploadFile,
     Bulletin:Bulletin,
     Message:db.import(__dirname+'/message.js'),
+    MessageRecipient:db.import(__dirname+'/message_recipient.js');
     // Message:require('./message'),
 };
 
