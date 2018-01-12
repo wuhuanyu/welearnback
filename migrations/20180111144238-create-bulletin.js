@@ -28,10 +28,12 @@ module.exports = {
         type: Sequelize.STRING,
         allowNull:false,
       },
-      time: {
-        type: Sequelize.INTEGER,
+      publish_time: {
+        type: Sequelize.BIGINT(11),
         allowNull:false,
       },
+    },{
+      charset:'utf8'
     });
   },
   down: (queryInterface, Sequelize) => {

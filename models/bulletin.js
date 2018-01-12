@@ -1,19 +1,31 @@
 'use strict';
 module.exports = (sequelize, DataTypes) => {
   var bulletin = sequelize.define('bulletin', {
-    course_id: DataTypes.INTEGER,
-    publisher_id: DataTypes.INTEGER,
+    course_id: {
+     type: DataTypes.INTEGER,
+     references:{
+       model:'courses',
+       key:'id'
+     }
+    },
+    publisher_id: {
+     type:  DataTypes.INTEGER,
+     references:{
+       model:'teachers',
+       key:'id',
+     }
+    },
     body: DataTypes.STRING,
-    time: DataTypes.INTEGER,
+    publish_time: DataTypes.BIGINT(11),
     
-  },{
-    timestamp:false,
   }, {
     classMethods: {
       associate: function(models) {
         // associations can be defined here
-      }
-    }
+      },
+    },
+    timestamps:false,
+    charset:'utf8',
   });
   return bulletin;
 };

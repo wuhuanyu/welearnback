@@ -383,8 +383,23 @@ router.get(/^\/([0-9]+)\/(\w+)\/comments$/, applyErrMiddleware(async (req, res, 
     });
 }));
 
-// TODO: check url 
-router.use(/^\/([0-9]+)\/bulletin$/,require('./bulletin_router'));
+router.use(/^\/([0-9]+)\/bulletin$/,(req,res,next)=>{
+    req.url_params={
+        course_id:req.params[0],
+    }
+    next();
+},
+require('./bulletin_router'));
+
+router.use(/^\/([0-9]+)\/message$/,(req,res,next)=>{
+    req.url_params={
+        course_id:req.params[0],
+    };
+    req.query_params={},
+    
+    next();
+});
+
 
 export default router;
 

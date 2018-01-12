@@ -33,7 +33,7 @@ ApiApp.use('/file', FileUploadRouter);
 
 ApiApp.use('/message',require('../routes/message_router'));
 ApiApp.use(function (err, req, res, next) {
-    console.log(err.code);
+    // console.log(err.code);
     res.status(err.code || 500).json({
         msg: err.msg || err.message,
     })

@@ -1,93 +1,28 @@
-import { request } from 'http';
+const mosca=require('mosca');
 
-const Student=require('../models/models').Stu;;
-const http=require('http');
-var debug = require('debug')('welearnback:server');
-const app=require('../push_service');
-const util=require('util');
+const storage={
+  type:'mongo',
+  url:'mongodb://localhost:27017/welearn',
+  pubsubCollection:'pub_sub',
+  mongo:{}
+};
 
-app.set('port',normalizePort('3001'));
-const server=http.createServer(app);
-const io=require('socket.io')(server);
+const settings={
+  port:1883,
+  backend:storage,
+};
 
+const server=new mosca.Server(settings);
 
-io.on('connect',async (socket)=>{
-    console.log('a user connected');
-    let found=await Student.findOne({where:{id:1}});
-    console.log(socket.handshake.headers);   
+server.on('clientConnected',(client)=>{
+  console.log('client connected',client.id);
 });
 
-
-global.io=io;
-
-
-
-server.listen(normalizePort('3001'));
-server.on('error',onError);
-server.on('listening',onListening);
-
-app.post('/push',(req,res,next)=>{
-  io.emit('msg',JSON.stringify(req.body));
-  res.json({
-    msg:"Message send"
-  });
+server.on('published',(packet,client)=>{
+  // console.log('published',packet.payload);
+  console.log(" payload: "+packet.payload.toString("ascii"));
+  // console.log("client:"+);
+  
 });
 
-function normalizePort(val) {
-  var port = parseInt(val, 10);
-
-  if (isNaN(port)) {
-    return val;
-  }
-
-  if (port >= 0) {
-    // port number
-    return port;
-  }
-
-  return false;
-}
-
-/**
- * Event listener for HTTP server "error" event.
- */
-
-function onError(error) {
-  if (error.syscall !== 'listen') {
-    throw error;
-  }
-
-  var bind = typeof port === 'string'
-    ? 'Pipe ' + port
-    : 'Port ' + port;
-
-  // handle specific listen errors with friendly messages
-  switch (error.code) {
-    case 'EACCES':
-      console.error(bind + ' requires elevated privileges');
-      process.exit(1);
-      break;
-    case 'EADDRINUSE':
-      console.error(bind + ' is already in use');
-      process.exit(1);
-      break;
-    default:
-      throw error;
-  }
-}
-
-/**
- * Event listener for HTTP server "listening" event.
- */
-
-function onListening() {
-  var addr = server.address();
-  var bind = typeof addr === 'string'
-    ? 'pipe ' + addr
-    : 'port ' + addr.port;
-  debug('Listening on ' + bind);
-}
-
-process.on('uncaughtException',(e)=>{
-  console.log(e);
-});
+server.on('ready',()=>console.log('Mosca server is up and running'));
