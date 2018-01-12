@@ -6,7 +6,7 @@
     "start": " nodemon --exec babel-node ./bin/www",
     "start_push_service": "nodemon --exec babel-node ./bin/push_www.js",
     "restart": "./init.sh",
-    "test":"mocha --compilers js:babel-core/register ./test/**/*.js"
+    "test":"mocha --compilers js:babel-core/register ./test/**/*.js --exit"
   },
   "dependencies": {
     "async-mqtt": "^1.0.1",

@@ -33,6 +33,7 @@ module.exports = {
     StuCourse:StuCourse,
     UploadFile:UploadFile,
     Bulletin:Bulletin,
+    Message:db.import(__dirname+'/message.js'),
     // Message:require('./message'),
 };
 

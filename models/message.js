@@ -1,43 +1,25 @@
-import { read } from 'fs';
-
-const db=require('../mysqlcon');
-const Sequelize =require('sequelize');
-const Course=require('./models').Course;
-const Teacher=require('./models').Teacher;
-
-const Message=db.define("message",{
-    sender_id:{
-        type:Sequelize.INTEGER,
-        allowNull:false,
-        references:{
-            model:Teacher,
-            key:'id',
-        },
+'use strict';
+module.exports = (sequelize, DataTypes) => {
+  var message = sequelize.define('message', {
+    is_teacher_send:DataTypes.BOOLEAN,
+    teacher_id:{
+      type:DataTypes.INTEGER,
+      references:{model:'teachers',key:'id'},
     },
-    recipient_course_id:{
-        type:Sequelize.INTEGER,
-        references:{
-            model:Course,
-            key:'id',
-        },
-        allowNull:false,
+    student_id:{
+      type:DataTypes.INTEGER,
+      references:{model:'stus',key:'id'},
     },
-    send_time:{
-        type:Sequelize.DATE,
-        defaultValue:Sequelize.NOW,
-        allowNull:false,
+    send_time: DataTypes.BIGINT(11),
+    body: DataTypes.STRING,
+  }, {
+    classMethods: {
+      associate: function(models) {
+        // associations can be defined here
+      }
     },
-    //TODO: defaultValue
-    expire_time:{
-        type:Sequelize.DATE,
-        allowNull:true
-    },
-    body:{
-        type:Sequelize.STRING,
-        allowNull:false,
-    }
-},{
     timestamps:false,
-});
-
-module.exports=Message;
+    charset:'utf8',
+  });
+  return message;
+};

@@ -391,14 +391,13 @@ router.use(/^\/([0-9]+)\/bulletin$/,(req,res,next)=>{
 },
 require('./bulletin_router'));
 
-router.use(/^\/([0-9]+)\/message$/,(req,res,next)=>{
+router.use(/^\/([0-9]+)\/message$/,common_auth,(req,res,next)=>{
     req.url_params={
         course_id:req.params[0],
     };
-    req.query_params={},
-    
+    // req.query_params={},
     next();
-});
+},require('./message_router'));
 
 
 export default router;

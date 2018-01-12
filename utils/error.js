@@ -5,7 +5,7 @@
  * @param {String} msg 
  */
 module.exports = function (code, msg) {
-    let error = new Error(msg);
+    let error = new Error(msg||"Unknown Error");
     error.code = code;
     return error;
 }
