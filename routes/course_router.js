@@ -146,7 +146,8 @@ router.get('', applyErrMiddleware(async (req, res, next) => {
  */
 
 router.get('/all', applyErrMiddleware(async (req, res, next) => {
-    let { start, count } = req.query;
+    // let { start, count } = req.query;
+    let start=req.query['start']||0,count=req.query['count']||Number.MAX_SAFE_INTEGER;
     let coursesFound = await Course.findAll({
         where: { id: { [OP.between]: [start, start + count] } },
     });
