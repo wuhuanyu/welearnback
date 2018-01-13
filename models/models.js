@@ -4,10 +4,10 @@ const Comment = require('./comment');
 
 
 
-let Stu = db.import(__dirname + "/stu.js");
+let Stu = db.import(__dirname + '/stu.js');
 Stu.checkedFields = ['name', 'password', 'gender'];
 
-let Teacher = db.import(__dirname + "/teacher.js");
+let Teacher = db.import(__dirname + '/teacher.js');
 Teacher.checkedFields = ['name', 'password', 'gender'];
 
 let Course = db.import(__dirname + '/course.js');

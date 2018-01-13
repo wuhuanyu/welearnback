@@ -1,38 +1,38 @@
 'use strict';
 // const Teacher = require('../models/models').Teacher;
 module.exports = {
-  up: (queryInterface, Sequelize) => {
-    return queryInterface.createTable('teacourses', {
-      id: {
-        allowNull: false,
-        autoIncrement: true,
-        primaryKey: true,
-        type: Sequelize.INTEGER
-      },
-      tId: {
-        type: Sequelize.INTEGER,
-        references:{model:'teachers',key:'id'}
-      },
-      cId: {
-        type: Sequelize.INTEGER,
-        references:{model:'courses',key:'id'}
-      },
+    up: (queryInterface, Sequelize) => {
+        return queryInterface.createTable('teacourses', {
+            id: {
+                allowNull: false,
+                autoIncrement: true,
+                primaryKey: true,
+                type: Sequelize.INTEGER
+            },
+            tId: {
+                type: Sequelize.INTEGER,
+                references:{model:'teachers',key:'id'}
+            },
+            cId: {
+                type: Sequelize.INTEGER,
+                references:{model:'courses',key:'id'}
+            },
 
-      createdAt: {
-        allowNull: false,
-        type: Sequelize.DATE,
-        defaultValue:Sequelize.literal('CURRENT_TIMESTAMP'),
-      },
-      updatedAt: {
-        allowNull: false,
-        type: Sequelize.DATE,
-        defaultValue:Sequelize.literal('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'),
-      }
-    },{
-      charset:'utf8'
-    });
-  },
-  down: (queryInterface, Sequelize) => {
-    return queryInterface.dropTable('teacourses');
-  }
+            createdAt: {
+                allowNull: false,
+                type: Sequelize.DATE,
+                defaultValue:Sequelize.literal('CURRENT_TIMESTAMP'),
+            },
+            updatedAt: {
+                allowNull: false,
+                type: Sequelize.DATE,
+                defaultValue:Sequelize.literal('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'),
+            }
+        },{
+            charset:'utf8'
+        });
+    },
+    down: (queryInterface, Sequelize) => {
+        return queryInterface.dropTable('teacourses');
+    }
 };

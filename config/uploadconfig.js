@@ -2,7 +2,8 @@ const multer = require('multer');
 const _path = require('path');
 const commonFileDest=_path.resolve(__dirname,'../uploads');
 const imageDest=_path.resolve(__dirname,'../uploads/images');
-import * as Constants from '../constants';
+// import * as Constants from '../constants';
+const Constants=require('../constants');
 
 import {isImage} from '../utils/check';
 const storage=multer.diskStorage({

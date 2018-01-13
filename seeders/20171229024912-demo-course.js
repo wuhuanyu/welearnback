@@ -1,7 +1,7 @@
 'use strict';
 
 module.exports = {
-  up: (queryInterface, Sequelize) => {
+    up: (queryInterface, Sequelize) => {
     /*
       Add altering commands here.
       Return a promise to correctly handle asynchronicity.
@@ -12,14 +12,14 @@ module.exports = {
         isBetaMember: false
       }], {});
     */
-    return queryInterface.bulkInsert('courses',[
-      {name:'Math',desc:'Advanced math'},
-      {name:'History',desc:'History of Acient Greek'},
-      {name:'Art',desc:'Modern European Art'},
-    ])
-  },
+        return queryInterface.bulkInsert('courses',[
+            {name:'Math',desc:'Advanced math'},
+            {name:'History',desc:'History of Acient Greek'},
+            {name:'Art',desc:'Modern European Art'},
+        ]);
+    },
 
-  down: (queryInterface, Sequelize) => {
+    down: (queryInterface, Sequelize) => {
     /*
       Add reverting commands here.
       Return a promise to correctly handle asynchronicity.
@@ -28,6 +28,6 @@ module.exports = {
       // return queryInterface.bulkDelete('Person', null, {});
     */
 
-       return queryInterface.bulkDelete('courses', null, {});
-  }
+        return queryInterface.bulkDelete('courses', null, {});
+    }
 };
