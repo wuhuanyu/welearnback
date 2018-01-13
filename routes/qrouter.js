@@ -9,7 +9,7 @@ const getErr = require('../utils/error');
 /**
  * post /question
  * must be teacher
- * authenticattion assumed in app.locals.{id,password,}
+ * authentication assumed in app.locals.{id,password,}
  */
 /**
  * Tested

@@ -4,10 +4,16 @@
         "node": true
     },
     "extends": "eslint:recommended",
+    "parserOptions": {
+        "ecmaVersion": 8,
+        "ecmaFeatures": {
+            "experimentalObjectRestSpread":true
+        }
+    },
     "rules": {
         "indent": [
             "error",
-            4
+            "tab"
         ],
         "linebreak-style": [
             "error",
@@ -21,6 +27,12 @@
             "error",
             "always"
         ],
-        "no-console":"warn"
+        "no-console":"warn",
+        "no-unused-vars":["warn",{ "argsIgnorePattern": "next" }]
+    },
+    "globals": {
+        "describe":true,
+        "it":true,
+        "before":true
     }
 }
