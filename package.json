@@ -6,7 +6,7 @@
     "start": " nodemon --exec babel-node ./bin/www",
     "start_push_service": "nodemon --exec babel-node ./bin/push_www.js",
     "restart": "./init.sh",
-    "test":"mocha --compilers js:babel-core/register ./test/**/*.js --exit"
+    "test": "./node_modules/.bin/mocha --compilers js:babel-core/register ./test/**/*.js --exit"
   },
   "dependencies": {
     "async-mqtt": "^1.0.1",
@@ -38,7 +38,8 @@
     "chai": "^4.1.2",
     "chai-as-promised": "^7.1.1",
     "chai-http": "^3.0.0",
-    "eslint": "^4.14.0",
+    "eslint": "^4.15.0",
+    "mocha": "^4.1.0",
     "morgan": "^1.9.0"
   }
 }

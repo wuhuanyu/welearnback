@@ -390,12 +390,19 @@ router.use(/^\/([0-9]+)\/bulletin$/,(req,res,next)=>{
     next();
 },
 require('./bulletin_router'));
-
+//TODO:check teacher or student selected the course;
 router.use(/^\/([0-9]+)\/message$/,common_auth,(req,res,next)=>{
-    req.url_params={
+    next();
+},(req,res,next)=>{
+   req.url_params={
         course_id:req.params[0],
     };
-    // req.query_params={},
+
+    //get /course/1/message?before=:time&after=:time&count:=num
+    req.url_queries={}
+    Object.keys(req.query).forEach(k=>{
+        req.url_queries[k]=req.query[k];
+    });
     next();
 },require('./message_router'));
 

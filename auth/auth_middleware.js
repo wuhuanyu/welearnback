@@ -12,7 +12,6 @@ const constants=require('../constants');
 
 const checkAuth=async (isTeacher,name,pass)=>{
     let user=isTeacher?Teacher:Student;
-    // console.log(isTeacher);
     let found= await user.findOne({where:{name:name,password:md5(pass)}});
     return found;
 }
@@ -22,11 +21,13 @@ module.exports.teacher_auth=applyEMW(async (req,res,next)=>{
     if(!authorization) {
         res.set('WWW-Authenticate',"Basic realm=\"Authorization Required\"")
         throw getErr(401,"Authorization Required");
-        // res.status(401).send("Authorization Required");
     }
     else{
-       let credentials=new Buffer(authorization.split(" ").pop(),"base64").toString("ascii").split(":");
-        let name=credentials[0],pass=credentials[1];
+        //TODO: try catch
+      let credentials=new Buffer(authorization.split(" ").pop(),"base64").toString("ascii").split(":");
+      if(credentials.length!==3) throw getErr(400,'Wrong format authorization header,read api first');
+        let name=credentials[0],pass=credentials[1],type=+credentials[2];
+        if(type!==constants.ACC_T_Tea) throw getErr(403,'You are supposed to be a teacher');
         let found=await checkAuth(true,name,pass);
         if(found) {
             req.auth.id=found.id;
@@ -44,18 +45,15 @@ module.exports.teacher_auth=applyEMW(async (req,res,next)=>{
  */
 module.exports.student_auth=applyEMW(async (req,res,next)=>{
     req.auth={};
-    console.log('----------student_auth--------');
-    console.log('--------req.body--------');
     console.log(JSON.stringify(req.body));
     let authorization=req.get('authorization');
     if(!authorization) {
         res.set('WWW-Authenticate',"Basic realm=\"Authorization Required\"")
         throw getErr(401,"Authorization Required");
-        // res.status(401).send("Authorization Required");
     }
     else{
        let credentials=new Buffer(authorization.split(" ").pop(),"base64").toString("ascii").split(":");
-       console.log(pass);
+    //    console.log(pass);
         let name=credentials[0],pass=credentials[1];
         let found=await checkAuth(false,name,pass);
         console.log(JSON.stringify(found));
@@ -78,12 +76,8 @@ module.exports.student_auth=applyEMW(async (req,res,next)=>{
  * @param {*} next 
  */
 module.exports.common_auth=applyEMW(async (req,res,next)=>{
-    // console.log('\n ----common_auth-----');
     req.auth={};
-    let type= +req.body.type;
-    // console.log('request body-------');
 
-    // console.log(JSON.stringify(req.body));
     let authorization=req.get('authorization');
     if(!authorization) {
         res.set('WWW-Authenticate',"Basic realm=\"Authorization Required\"")
@@ -91,7 +85,7 @@ module.exports.common_auth=applyEMW(async (req,res,next)=>{
     }
     else{
         let credentials=new Buffer(authorization.split(" ").pop(),"base64").toString("ascii").split(":");
-        let name=credentials[0],pass=credentials[1];
+        let name=credentials[0],pass=credentials[1],type=+credentials[2];
         let found=await checkAuth(type===constants.ACC_T_Tea,name,pass);
         if(found) {
             req.auth.id=found.id;
@@ -105,10 +99,3 @@ module.exports.common_auth=applyEMW(async (req,res,next)=>{
     }
  
 });
-// module.exports.selectAuth=(req,res,next)=>{
-//     let requestInitiatorType=req.body.type;
-//     if(requestInitiatorType in [constants.ACC_T_Stu,constants.ACC_T_Tea]){
-//         req.check_auth=
-//     }
-    
-// }

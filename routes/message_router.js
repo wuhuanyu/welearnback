@@ -5,10 +5,12 @@ const constants = require('../constants');
 const models = require('../models/models');
 const db = require('../mysqlcon');
 const getError = require('../utils/error').getError;
+const OP=require('../mysqlcon').Op;
 
-router.post('', errMW(async (res, req, next) => {
+router.post('', applyEMW(async (req, res, next) => {
+
     let auth = req.auth, msg_body = req.body.body, is_teacher = auth.type === constants.ACC_T_Tea;
-    //TODO: add transaction support
+    if(!msg_body) throw getError(400,"Wrong format message body,Read Api first");
     let course_id = req.url_params['course_id'];
     let transaction;
     try {
@@ -24,7 +26,7 @@ router.post('', errMW(async (res, req, next) => {
             .map(stu => ({
                 message_id: saved_msg.id,
                 recipient_course_id: course_id,
-                recipient_stu_id: stu.id,
+                recipient_stu_id: stu.sId,
                 recipient_teacher_id: null,
                 is_read: false,
             }));
@@ -37,23 +39,58 @@ router.post('', errMW(async (res, req, next) => {
                 message_id: saved_msg.id,
                 recipient_course_id: course_id,
                 recipient_stu_id: null,
-                recipient_teacher_id: teacher.id,
+                recipient_teacher_id: teacher.tId,
                 is_read: false,
             })
             );
-        
-        let saved_tea_msg=await models.MessageRecipient.bulkCreate(tea_recipient);
+
+        let saved_tea_msg = await models.MessageRecipient.bulkCreate(tea_recipient);
         transaction.commit();
         //push service
 
         res.json({
-            result:saved_msg.id,
-            msg:'Message send successfully'
+            result: saved_msg.id,
+            msg: 'Message send successfully'
         });
     } catch (err) {
         await transaction.rollback();
         throw getError(500);
     }
+}));
 
+router.get('',applyEMW(async (req,res,next)=>{
+    let time_before=req.url_queries['before']||new Date().getTime()
+    ,time_after=req.url_params['after']||0
+    ,count=req.url_params['count']||Number.MAX_SAFE_INTEGER;
+    let msgs=await models.Message.findAll({
+        where:{
+            send_time:{
+                [OP.between]:[time_after,time_before],
+            }
+        },limit:count,
+    });
+    if(!msgs.length===0) throw getError(404,"No such resource");
+    res.json({
+        count:msgs.length,
+        data:msgs,
+    });
+}));
+
+router.patch('',applyEMW(async (req,res,next)=>{
+    let msg_id=+req.url_queries['msg_id'],is_teacher=req.auth.type===constants.ACC_T_Tea;
+    if(!msg_id) throw getError(404,'Wrong request format,read api first');
+    let msg_recipient=await models.MessageRecipient.findOne({
+        where:{
+            message_id:msg_id,
+            recipient_stu_id:(is_teacher?null:req.auth.id),
+            recipient_teacher_id:(is_teacher?req.auth.id:null),
+        }
+    });
+    msg_recipient.is_read=true;
+    let updated=await msg_recipient.save();
+    res.json({
+        result:msg_recipient.id,
+        msg:"Message Recipient updated"
+    });
 }));
 module.exports=router;

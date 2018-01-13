@@ -40,16 +40,25 @@ describe('Bulletins', () => {
         it('it should post a bulletin', (done) => {
             let bulletin = { body: '下周开会' };
             chai.request(server).post('/api/v1/course/1/bulletin')
-                .set('authorization', 'TXJaaGFvOnBhc3M=')
+                .set('authorization', 'TXJaaGFvOnBhc3M6MTE=')
                 .set('content-type', 'application/json')
                 .send(bulletin).end((err, res) => {
                     res.should.have.status(200);
                     let body = res.body;
-                    console.log(res.body);
                     body.should.have.property('result').that.is.a('number');
                     body.should.have.property('msg')
                     done();
                 })
-        })
+        });
+        it('it should be rejected due to authentication',(done)=>{
+            let bulletin = { body: '下周开会' };
+             chai.request(server).post('/api/v1/course/1/bulletin')
+                .set('authorization', 'TXJaaGFvOnBhc3M6MTI=')
+                .set('content-type', 'application/json')
+                .send(bulletin).end((err, res) => {
+                    res.should.have.status(403);
+                   done();
+                })
+        });
     })
 });
