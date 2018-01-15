@@ -15,9 +15,9 @@ module.exports = {
 		return queryInterface.bulkInsert('stucourses',[{
 			sId:1,
 			cId:1,
-		},
+		},{sId:1,cId:2},{sId:1,cId:3},
 		{sId:2,cId:2},
-		{sId:3,cId:3}]);
+		{sId:3,cId:3},]);
 	},
 
 	down: (queryInterface, Sequelize) => {

@@ -1,11 +1,15 @@
 const router = require('express').Router();
-import { Question, Comment, Course } from '../models/models';
+// import { Question, Comment, Course } from '../models/models';
+const models=require('../models/models');
+const Question=models.Question,Comment=models.Comment,Course=models.Course;
 const getError = require('../utils/error');
 const findByFieldFactory = require('../utils/commonquery');
 const TAG = "[CourseRouter]: ";
-import * as constants from '../constants';
+// import * as constants from '../constants';
+const constants=require('../constants');
 const _File = require('../models/models').UploadFile;
-import * as Constants from '../constants';
+const Constants=constants;
+// import * as Constants from '../constants';
 import { isImage } from '../utils/check';
 import { defaultConfig } from '../config/uploadconfig';
 import { common_auth } from '../auth/auth_middleware';
@@ -166,6 +170,53 @@ router.get('/all', applyErrMiddleware(async (req, res, next) => {
 }));
 
 
+/**
+ * get comment of a course
+ * /course/12/comments
+ */
+router.get(/^\/([0-9]+)\/comment$/,applyErrMiddleware(async (req,res,next)=>{
+    let course_id=req.params[0];
+    let comments=await findByFieldFactory('comment',['forT','forId'])([Constants.ForT_Course,course_id]);
+    if(comments.length===0) throw getError(404,"No such resource");
+    let datas=[];
+    for(let comment of comments){
+        let author=(comment.aT===constants.ACC_T_Stu?models.Stu:models.Teacher);
+        let author_name=(await author.findById(comment.aId)).name;
+        let c=comment.toObject();
+        c.author=author_name,
+        datas.push(c);
+    }
+        res.json({
+            count:datas.length,
+            data:datas
+        });
+}));
+
+/**
+ *  TODO:add image support
+ */
+
+ router.post(/^\/([0-9]+)\/comment$/,common_auth,applyErrMiddleware(async (req,res,next)=>{
+     let auth=req.auth,is_teacher=auth.type===constants.ACC_T_Tea;
+     let course_id=req.params[0];
+     let time=new Date().getTime();
+   let saved=  await new models.Comment({
+         _id:md5(''+time),
+         forT:constants.ForT_Course,
+         forId:course_id,
+         aT:auth.type,
+         aId:auth.id,
+         time:time,
+         body:req.body.body,
+     }).save();
+     if(saved){
+         res.json({
+             result:saved.id,
+             msg:'Comment successfully'
+         })
+     };
+ }));
+
 /** 
  * authentication assumed 
  * req.auth.{tId,name,password}
@@ -179,7 +230,7 @@ router.post(/^\/([0-9]+)\/question$/, teacher_auth, defaultConfig, applyErrMiddl
     let auth = req.auth;
     let files = req.files['upload'];
     //check fields
-    let question_id=md5(new Date().getTime()+req.bodt.body);
+    let question_id=md5(new Date().getTime()+req.body.body);
     if (['type', 'body'].every(f => Object.keys(b).indexOf(f) > -1)) {
         let newQ = new Question({
             _id: question_id,
@@ -374,7 +425,7 @@ router.get(/^\/([0-9]+)\/(\w+)\/comments$/, applyErrMiddleware(async (req, res, 
         let data = comment.toJSON();
         // console.log(data);
         let images = await getImageNames({ forT: constants.ForT_Comment, fId: comment._id });
-        data.aName = userFound.name;
+        data.author = userFound.name;
         data.images = images;
         datas.push(data);
     }

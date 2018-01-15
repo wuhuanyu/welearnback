@@ -11,7 +11,7 @@ const constants=require('../constants');
 import { ACC_T_Stu, ACC_T_Tea } from '../constants';
 const applyEMW = require('../utils/error').errMW;
 import { getImageNames } from './course_router';
-import { teacher_auth } from '../auth/auth_middleware';
+import { teacher_auth, student_auth } from '../auth/auth_middleware';
 const Course = require('../models/models').Course;
 const TAG = "[AccRouter]: ";
 const TeaCourse = require('../models/models').TeaCourse;
@@ -111,7 +111,7 @@ router.post(/^\/stu\/([0-9]+)\/course$/, stu_auth, applyEMW(async (req, res, nex
  * /stu/12/course
  * tested
  */
-router.get(/^\/stu\/([0-9]+)\/course$/, applyEMW(async (req, res, next) => {
+router.get(/^\/stu\/([0-9]+)\/course$/,student_auth, applyEMW(async (req, res, next) => {
     let sID = req.params[0];
     let stu_courses = await StuCourse.findAll({ where: { sId: sID }, attributes: ['sId', 'cId'] });
     if (stu_courses.length === 0) throw getError(404, "You have not select courses");
