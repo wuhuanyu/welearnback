@@ -30,7 +30,7 @@ module.exports = {
 					model: 'stus',
 					key: 'id',
 				},
-				allowNull: false,
+				allowNull: true,
 			},
 			recipient_teacher_id: {
 				type: Sequelize.INTEGER,
@@ -38,7 +38,7 @@ module.exports = {
 					model: 'teachers',
 					key: 'id',
 				},
-				allowNull: false,
+				allowNull: true,
 			},
 
 			is_read: {

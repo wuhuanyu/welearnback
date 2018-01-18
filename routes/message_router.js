@@ -1,11 +1,11 @@
-
 const router = require('express').Router();
 const applyEMW = require('../utils/error').errMW;
 const constants = require('../constants');
 const models = require('../models/models');
 const db = require('../mysqlcon');
-const getError = require('../utils/error').getError;
+const getError = require('../utils/error');
 const OP=require('../mysqlcon').Op;
+const mqtt_client=require('../globals').mqtt_client;
 
 router.post('', applyEMW(async (req, res, next) => {
 
@@ -20,6 +20,7 @@ router.post('', applyEMW(async (req, res, next) => {
 			teacher_id: (is_teacher ? auth.id : null),
 			student_id: (is_teacher ? null : auth.id),
 			send_time: new Date().getTime(),
+			course_id:course_id,
 			body: msg_body,
 		}).save();
 		let stu_recepient = (await models.StuCourse.findAll({ where: { cId: course_id }, attributes: ['sId'] }))
@@ -47,14 +48,17 @@ router.post('', applyEMW(async (req, res, next) => {
 		let saved_tea_msg = await models.MessageRecipient.bulkCreate(tea_recipient);
 		transaction.commit();
 		//push service
-
+		mqtt_client.publish(`${course_id}`,JSON.stringify({
+			type:constants.new_message,
+			payload:saved_msg,	
+		}));
 		res.json({
 			result: saved_msg.id,
 			msg: 'Message send successfully'
 		});
 	} catch (err) {
 		await transaction.rollback();
-		throw getError(500);
+		throw getError(500,err.message);
 	}
 }));
 

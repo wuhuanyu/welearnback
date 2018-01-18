@@ -1,3 +1,4 @@
+
 'use strict';
 module.exports = {
 	up: (queryInterface, Sequelize) => {
@@ -7,6 +8,14 @@ module.exports = {
 				autoIncrement: true,
 				primaryKey: true,
 				type: Sequelize.INTEGER
+			},
+			course_id:{
+				allowNull:false,
+				type:Sequelize.INTEGER,
+				references:{
+					model:'courses',
+					key:'id'
+				}
 			},
 			is_teacher_send:{
 				type:Sequelize.BOOLEAN,

@@ -31,24 +31,24 @@ export const FT_IMAGE=53;
  * events 
  * 以课程为话题,以下列的事情为代码 ，比如 数学课发布了新的习题 /数学   payload: {code:63,msg:""}
  */
-export const new_comment_course=61;
-export const new_comment_course_by_teacher=62;
+export const new_comment_course=98;
+export const new_comment_course_by_teacher=97;
 
-export const new_question=63;
+export const new_question=96;
 
 /**
  * /数学 payload:{code:64,question_id:id,data:{}}
  */
-export const new_comment_question=64;
+export const new_comment_question=95;
 
-export const new_comment_question_by_teacher=65;
+export const new_comment_question_by_teacher=94;
 
 /**
  * /数学
  */
-export const new_message=66;
+export const new_message=50;
 
-export const bulletin=67;
+export const bulletin=99;
 
 
 

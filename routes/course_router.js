@@ -26,7 +26,7 @@ const teacher_auth = require('../auth/auth_middleware').teacher_auth;
 const commont_auth = require('../auth/auth_middleware').common_auth;
 const uuid = require('uuid/v1');
 const md5=require('md5');
-
+const _globals=require('../globals');
 const getTeacherName = async (options) => {
     let { tId } = options;
     let teacher = await Teacher.findOne({ where: { id: tId }, attributes: ['name'] });
@@ -200,7 +200,7 @@ router.get(/^\/([0-9]+)\/comment$/,applyErrMiddleware(async (req,res,next)=>{
      let auth=req.auth,is_teacher=auth.type===constants.ACC_T_Tea;
      let course_id=req.params[0];
      let time=new Date().getTime();
-   let saved=  await new models.Comment({
+     let saved=  await new models.Comment({
          _id:md5(''+time),
          forT:constants.ForT_Course,
          forId:course_id,
@@ -210,10 +210,14 @@ router.get(/^\/([0-9]+)\/comment$/,applyErrMiddleware(async (req,res,next)=>{
          body:req.body.body,
      }).save();
      if(saved){
+         _globals.mqtt_client.publish(`${course_id}`,JSON.stringify({
+             type:constants.new_comment_course_by_teacher,
+             payload:saved_msg,
+         }))
          res.json({
              result:saved.id,
              msg:'Comment successfully'
-         })
+         });
      };
  }));
 
@@ -238,7 +242,6 @@ router.post(/^\/([0-9]+)\/question$/, teacher_auth, defaultConfig, applyErrMiddl
             cId: cid,
             tId: req.auth.id,
             body: b.body,
-            // ans: b.ans,
             time: new Date().getTime(),
         });
         newQ.save().then(savedQ => {
@@ -347,7 +350,7 @@ router.post(/^\/([0-9]+)\/(\w+)\/comment$/, defaultConfig, common_auth, applyErr
     console.log('-------post comment to question--------');
     let c = req.params[0], q = req.params[1], author_type = req.auth.type;
         let comment_id = md5(new Date().getTime()+req.body.body);
-        console.log(JSON.stringify(req.body));
+        // console.log(JSON.stringify(req.body));
         let body = req.body;
         let newC = new Comment({
             _id: comment_id,
@@ -407,6 +410,37 @@ router.post(/^\/([0-9]+)\/(\w+)\/comment$/, defaultConfig, common_auth, applyErr
 )
 );
 
+
+router.get(/^\/([0-9]+)\/users$/,applyErrMiddleware(async (req,res,next)=>{
+    let course_id=req.params[0];
+    let stu_courses=await models.StuCourse.findAll({where:{cId:course_id},attributes:['sId']});
+    if(stu_courses.length===0) throw getError(404,"No such resources");
+    let tea_courses=await models.TeaCourse.findAll({where:{cId:course_id},attributes:['tId']});
+
+    let datas=[];
+    for(let tea of tea_courses){
+        let teacher =await models.Teacher.findOne({where:{id:tea.tId},attributes:['id','name','gender']});
+        teacher=teacher.toJSON();
+        teacher.type=Constants.ACC_T_Tea;
+        datas.push(teacher);
+    }
+    for(let stu of stu_courses){
+        let student_id=stu.sId;
+        let student= await models.Stu.findOne({where:{id:student_id},attributes:['id','name','gender']});
+        student=student.toJSON();
+        student.type=Constants.ACC_T_Stu;
+        datas.push(student);
+    }
+    res.set({
+        'Cache-Control':`max-age=${10*60}`
+    });
+    res.json({
+        count:datas.length,
+        data:datas
+    });
+}));
+
+
 /**
  * /course/question/comments
  * /12/24/comments
@@ -457,6 +491,9 @@ router.use(/^\/([0-9]+)\/message$/,common_auth,(req,res,next)=>{
     });
     next();
 },require('./message_router'));
+
+
+
 
 
 export default router;

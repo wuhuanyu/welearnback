@@ -6,6 +6,10 @@ module.exports = (sequelize, DataTypes) => {
 			type:DataTypes.INTEGER,
 			references:{model:'teachers',key:'id'},
 		},
+		course_id:{
+			type:DataTypes.INTEGER,
+			references:{model:'courses',key:'id'}
+		},
 		student_id:{
 			type:DataTypes.INTEGER,
 			references:{model:'stus',key:'id'},
