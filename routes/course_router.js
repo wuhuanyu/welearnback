@@ -492,10 +492,5 @@ router.use(/^\/([0-9]+)\/message$/,common_auth,(req,res,next)=>{
     next();
 },require('./message_router'));
 
-
-
-
-
 export default router;
-
 export {getImageNames};

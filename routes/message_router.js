@@ -48,6 +48,8 @@ router.post('', applyEMW(async (req, res, next) => {
 		let saved_tea_msg = await models.MessageRecipient.bulkCreate(tea_recipient);
 		transaction.commit();
 		//push service
+		saved_msg=saved_msg.toJSON();
+		saved_msg.sender_name=auth.name;
 		mqtt_client.publish(`${course_id}`,JSON.stringify({
 			type:constants.new_message,
 			payload:saved_msg,	
