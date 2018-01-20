@@ -44,7 +44,7 @@ describe('CourseRouter', () => {
 
 	describe('GET STUDENTS',()=>{
 		it('it should return all students that select the course',(done)=>{
-			chai.request(server).get('/api/v1/course/1/stus')
+			chai.request(server).get('/api/v1/course/1/users')
 				.end((err,res)=>{
 					console.log(JSON.stringify(res.body));
 					res.body.should.have.property('count').that.is.a('number');

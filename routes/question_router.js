@@ -44,7 +44,6 @@ router.post('', teacher_auth, defaultConfig, applyErrMiddleware((req, res, next)
 	// let question_id=md5(new Date().getTime()+req.body.body);
 	if (['type', 'body'].every(f => Object.keys(b).indexOf(f) > -1)) {
 		let newQ = new models.Question({
-			// _id: question_id,
 			type: b.type,
 			cId: cid,
 			tId: req.auth.id,
@@ -89,7 +88,6 @@ router.get('', applyErrMiddleware(async (req, res, next) => {
 	let start=req.query.start||0;
 	let limit=req.query.limit||3;
 	
-
 	let questions=await models.Question.find({cId:cId}).where('_id').gt(start-1).limit(limit).sort('-time');
 	if (questions.length === 0) throw getError(404, 'No such resource');
 	let quesitonsWithImage = [];
@@ -99,7 +97,7 @@ router.get('', applyErrMiddleware(async (req, res, next) => {
 		let obj = q.toObject();
 		obj.images = images;
 		quesitonsWithImage.push(obj);
-		if(idx===questions.length-1){
+		if(idx===0){
 			next_start=q._id+1;
 		}
 	}
@@ -162,6 +160,7 @@ router.post(/^\/(\w+)\/ans$/, teacher_auth, defaultConfig, applyErrMiddleware(as
  * 
  *  /12/12/comment
  * must specify user type 
+ * tested
  */
 router.post(/^\/(\w+)\/comment$/, defaultConfig, common_auth, applyErrMiddleware(async (req, res, next) => {
 	// console.log('-------post comment to question--------');
@@ -183,7 +182,7 @@ router.post(/^\/(\w+)\/comment$/, defaultConfig, common_auth, applyErrMiddleware
          */
 	let files = (req.files&&req.files['upload'])||[];
 	let savedFiles = [];
-	if (files && (files.length !== 0)) {
+	if ( files.length !== 0) {
 		//there is file
 		for (let file of files) {
 			let { originalname, size, filename, path } = file;
@@ -224,32 +223,39 @@ router.post(/^\/(\w+)\/comment$/, defaultConfig, common_auth, applyErrMiddleware
 /**
  * /course/1/question/1/comment
  * get all comments of a question of a course
+ * tested
  */
 router.get(/\/(\w+)\/comment$/, applyErrMiddleware(async (req, res, next) => {
 	
 	let c = req.url_params.course_id, q = req.params[0];
 	console.log(TAG,'-----------question router--------------');
-	let start=req.query.start||0,limit=req.query.limit||5;
+	let start=+req.query.start||0,limit=+req.query.limit||5;
 
 	// let comments = await findByFieldFactory('comment', ['forT', 'forId'], { time: 1 })([constants.ForT_Question, q]);
 	let comments= await models.Comment.find({forT:constants.ForT_Question,forId:q}).where('_id').gt(start-1).limit(limit).sort('-time');
 	if (comments.length === 0) throw getError(400, 'No such resource');
+	let next_start=0;
 	let datas = [];
-	for (let comment of comments) {
+	for (let [idx,comment] of comments.entries()) {
 		let aT = comment.aT;
 		let aId = comment.aId;
 		let user = (aT === constants.ACC_T_Tea ? models.Teacher : models.Stu);
 		let userFound = await user.findById(aId);
-		let data = comment.toJSON();
+		let data = comment.toObject();
+		// data._id=comment._id;
 		// console.log(data);
 		let images = await getImageNames({ forT: constants.ForT_Comment, fId: comment._id });
 		data.author = userFound.name;
 		data.images = images;
 		datas.push(data);
+		if(idx===0){
+			next_start=comment._id+1;
+		}
 	}
 	res.json({
 		count: datas.length,
-		data: datas
+		data: datas,
+		next:next_start,
 	});
 }));
 

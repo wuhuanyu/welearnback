@@ -176,13 +176,16 @@ router.get('/all', applyErrMiddleware(async (req, res, next) => {
  */
 router.get(/^\/([0-9]+)\/comment$/,applyErrMiddleware(async (req,res,next)=>{
     let course_id=req.params[0];
-    let comments=await findByFieldFactory('comment',['forT','forId'])([Constants.ForT_Course,course_id]);
+    let start=req.query.start||0,limit=req.query.limit||5;
+    // let comments=await findByFieldFactory('comment',['forT','forId'])([Constants.ForT_Course,course_id]);
+    let comments=await models.Comment.find({forT:constants.ForT_Course,forId:course_id}).where('_id').gt(start).limit(limit).sort('-time');
     if(comments.length===0) throw getError(404,"No such resource");
     let datas=[];
     for(let comment of comments){
         let author=(comment.aT===constants.ACC_T_Stu?models.Stu:models.Teacher);
         let author_name=(await author.findById(comment.aId)).name;
         let c=comment.toObject();
+        c._id=comment._id;
         c.author=author_name,
         datas.push(c);
     }
@@ -201,7 +204,6 @@ router.get(/^\/([0-9]+)\/comment$/,applyErrMiddleware(async (req,res,next)=>{
      let course_id=req.params[0];
      let time=new Date().getTime();
      let saved=  await new models.Comment({
-         _id:md5(''+time),
          forT:constants.ForT_Course,
          forId:course_id,
          aT:auth.type,
@@ -212,7 +214,7 @@ router.get(/^\/([0-9]+)\/comment$/,applyErrMiddleware(async (req,res,next)=>{
      if(saved){
          _globals.mqtt_client.publish(`${course_id}`,JSON.stringify({
              type:constants.new_comment_course_by_teacher,
-             payload:saved_msg,
+             payload:saved,
          }))
          res.json({
              result:saved.id,
