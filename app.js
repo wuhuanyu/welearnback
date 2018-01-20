@@ -11,12 +11,17 @@ const mongoose = require('mongoose');
 
 const ApiApp = require('./apps/ApiApp');
 const WebApp = require('./apps/WebApp');
-if (process.env.NODE_ENV !== 'test')
-	mongoose.connect('mongodb://localhost:27017/welearn');
-else mongoose.connect('mongodb://localhost:27017/welearn_test');
-
+const auto_increment = require('mongoose-auto-increment');
 
 mongoose.Promise = global.Promise;
+if (process.env.NODE_ENV !== 'test')
+	mongoose.connect('mongodb://localhost:27017/welearn', { useMongoClient: true });
+else mongoose.connect('mongodb://localhost:27017/welearn_test');
+
+// mongoose.connection.once('open', () => {
+// 	auto_increment.initialize(mongoose.connection);
+// });
+
 
 app.use(morgan('dev'));
 app.use('/images', express.static('uploads/images'));

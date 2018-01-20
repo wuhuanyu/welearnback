@@ -1,15 +1,13 @@
 const mongoose =require('mongoose');
-const auto_increment=require('mongoose-auto-increment').plugin;
+const auto_increment=require('mongoose-auto-increment');
 const AnsSchema=mongoose.Schema({
-	_id:mongoose.Schema.Types.ObjectId,
 	body:String,
 	images:[String],
 	files:[String],
 });
-
-AnsSchema.plugin(auto_increment);
+// auto_increment.initialize(mongoose.connection);
+// AnsSchema.plugin(auto_increment.plugin);
 const QSchema=mongoose.Schema({
-	_id:mongoose.Schema.Types.ObjectId,
 	type:Number,
 	cId:Number,
 	tId:Number,
@@ -21,9 +19,10 @@ const QSchema=mongoose.Schema({
 	time:Number,
 });
 
-QSchema.plugin(auto_increment,'question');
-const Question= mongoose.model('question',QSchema,'questions');
+auto_increment.initialize(mongoose.connection);
+QSchema.plugin(auto_increment.plugin,{model:'question',field:'_id'});
 
+const Question= mongoose.model('question',QSchema,'questions');
 Question.checkedFields=['type','cId','tId','body'];
 
 module.exports = Question;

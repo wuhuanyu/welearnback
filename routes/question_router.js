@@ -32,14 +32,14 @@ const getImageNames = async (options) => {
 };
 /** 
  * authentication assumed 
- * req.auth.{tId,name,password}
+ * req.auth.{id,name,password}
  * post question of a certain course
  * /23/question
  */
 router.post('', teacher_auth, defaultConfig, applyErrMiddleware((req, res, next) => {
 	let b = req.body, cid = req.url_params.course_id;
 	let auth = req.auth;
-	let files = req.files['upload'];
+	let files = (req.files&&req.files['upload'])||[];
 	//check fields
 	// let question_id=md5(new Date().getTime()+req.body.body);
 	if (['type', 'body'].every(f => Object.keys(b).indexOf(f) > -1)) {
@@ -85,8 +85,10 @@ router.post('', teacher_auth, defaultConfig, applyErrMiddleware((req, res, next)
  * get all questions of 12 course
  */
 router.get('', applyErrMiddleware(async (req, res, next) => {
-    let cId = req.url_params.course_id;
-    let start=req.que
+	let cId = req.url_params.course_id;
+	let start=req.query.start||0;
+	let limit=req.query.limit||3;
+	
 	let questions = await (findByFieldFactory('question', ['cId'], { time: -1 }))([cId]);
 	if (questions.length === 0) throw getError(404, 'No such resource');
 	let quesitonsWithImage = [];

@@ -1,5 +1,4 @@
 const ApiApp = require('express')();
-const Qrouter = require('../routes/qrouter');
 const AccRouter = require('../routes/accrouter');
 import * as constants from '../constants';
 import CourseRouter from '../routes/course_router';
@@ -27,7 +26,6 @@ ApiApp.use((req, res, next) => {
     };
     next();
 });
-ApiApp.use("/question", Qrouter);
 ApiApp.use('/course', CourseRouter);
 ApiApp.use('/file', FileUploadRouter);
 

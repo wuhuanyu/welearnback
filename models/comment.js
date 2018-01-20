@@ -1,7 +1,6 @@
 const mongoose = require('mongoose');
-const auto_increment=require('mongoose-auto-increment').plugin;
+const auto_increment=require('mongoose-auto-increment');
 const CommentSchema = mongoose.Schema({
-	_id:mongoose.Schema.Types.ObjectId,
 	//for question or course
 	forT:Number,
 	// question id or course id 
@@ -13,7 +12,9 @@ const CommentSchema = mongoose.Schema({
 	time: Number,
 	body: String,
 });
-CommentSchema.plugin(auto_increment,'comment');
+auto_increment.initialize(mongoose.connection);
+
+CommentSchema.plugin(auto_increment.plugin,'comment');
 const Comment = mongoose.model('comment', CommentSchema, 'comments');
 Comment.checkedFields=['forT','forId','aT','aId','body'];
 module.exports=Comment;
