@@ -253,7 +253,7 @@ router.get(/^\/([0-9]+)\/users$/,applyErrMiddleware(async (req,res,next)=>{
 }));
 
 
-router.use(/^\/([0-9]+)\/question$/,(req,res,next)=>{
+router.use(/^\/([0-9]+)\/question/,(req,res,next)=>{
     req.url_params={};
     req.url_params.course_id=req.params[0];
     next();
