@@ -24,19 +24,19 @@ let Bulletin=db.import(__dirname+'/bulletin.js');
 // Bulletin.checkedFields=['body']
 
 module.exports = {
-	Question: Question,
-	Comment: Comment,
-	Stu: Stu,
-	Teacher: Teacher,
-	Course: Course,
-	TeaCourse: TeaCourse,
-	StuCourse:StuCourse,
-	UploadFile:UploadFile,
-	Bulletin:Bulletin,
-	Message:db.import(__dirname+'/message.js'),
-	_File:db.import(__dirname+'/fileupload.js'),
-	MessageRecipient:db.import(__dirname+'/message_recipient.js'),
+    Question: Question,
+    Comment: Comment,
+    Stu: Stu,
+    Teacher: Teacher,
+    Course: Course,
+    TeaCourse: TeaCourse,
+    StuCourse:StuCourse,
+    UploadFile:UploadFile,
+    Bulletin:Bulletin,
+    Message:db.import(__dirname+'/message.js'),
+    _File:db.import(__dirname+'/fileupload.js'),
+    MessageRecipient:db.import(__dirname+'/message_recipient.js'),
 	
-	// Message:require('./message'),
+    // Message:require('./message'),
 };
 

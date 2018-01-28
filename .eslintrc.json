@@ -7,13 +7,13 @@
     "parserOptions": {
         "ecmaVersion": 8,
         "ecmaFeatures": {
-            "experimentalObjectRestSpread":true
+            "experimentalObjectRestSpread": true
         }
     },
     "rules": {
         "indent": [
             "error",
-            "tab"
+            4
         ],
         "linebreak-style": [
             "error",
@@ -26,9 +26,9 @@
         "semi": [
             "error",
             "always"
-        ],
-        "no-console":"warn",
-        "no-unused-vars":["warn",{ "argsIgnorePattern": "next" }]
+        ]
+        
+
     },
     "globals": {
         "describe":true,

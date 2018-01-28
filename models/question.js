@@ -1,22 +1,22 @@
 const mongoose =require('mongoose');
 const auto_increment=require('mongoose-auto-increment');
 const AnsSchema=mongoose.Schema({
-	body:String,
-	images:[String],
-	files:[String],
+    body:String,
+    images:[String],
+    files:[String],
 });
 // auto_increment.initialize(mongoose.connection);
 // AnsSchema.plugin(auto_increment.plugin);
 const QSchema=mongoose.Schema({
-	type:Number,
-	cId:Number,
-	tId:Number,
-	body:String,
-	anss:{
-		type:[AnsSchema],
-	},
+    type:Number,
+    cId:Number,
+    tId:Number,
+    body:String,
+    anss:{
+        type:[AnsSchema],
+    },
     
-	time:Number,
+    time:Number,
 });
 
 auto_increment.initialize(mongoose.connection);

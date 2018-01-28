@@ -1,16 +1,16 @@
 const mongoose = require('mongoose');
 const auto_increment=require('mongoose-auto-increment');
 const CommentSchema = mongoose.Schema({
-	//for question or course
-	forT:Number,
-	// question id or course id 
-	forId:String,
+    //for question or course
+    forT:Number,
+    // question id or course id 
+    forId:String,
 
-	aT: Number,//authorType
-	aId: Number,//authorId
+    aT: Number,//authorType
+    aId: Number,//authorId
 
-	time: Number,
-	body: String,
+    time: Number,
+    body: String,
 });
 auto_increment.initialize(mongoose.connection);
 
