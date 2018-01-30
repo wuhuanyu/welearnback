@@ -289,5 +289,15 @@ router.use(/^\/([0-9]+)\/message$/,common_auth,(req,res,next)=>{
     next();
 },require('./message_router'));
 
+
+router.use(/^\/([0-9]+)\/video$/,(req,res,next)=>{
+    req.url_params=req.url_params||{};
+    req.url_params['course_id']=req.params[0];
+    next();
+},require('./video_router'));
+
+
+
+
 export default router;
 export {getImageNames};
