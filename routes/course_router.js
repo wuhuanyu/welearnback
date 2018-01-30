@@ -176,22 +176,27 @@ router.get('/all', applyErrMiddleware(async (req, res, next) => {
  */
 router.get(/^\/([0-9]+)\/comment$/,applyErrMiddleware(async (req,res,next)=>{
     let course_id=req.params[0];
-    let start=req.query.start||0,limit=req.query.limit||5;
+    let start=+req.query.start||0,limit=+req.query.limit||5;
     // let comments=await findByFieldFactory('comment',['forT','forId'])([Constants.ForT_Course,course_id]);
-    let comments=await models.Comment.find({forT:constants.ForT_Course,forId:course_id}).where('_id').gt(start).limit(limit).sort('-time');
+    let comments=await models.Comment.find({forT:constants.ForT_Course,forId:course_id}).where('_id').gt(start-1).limit(limit);
     if(comments.length===0) throw getError(404,"No such resource");
     let datas=[];
-    for(let comment of comments){
+    let next_start=-1;
+    for(let [idx,comment] of comments.entries()){
         let author=(comment.aT===constants.ACC_T_Stu?models.Stu:models.Teacher);
         let author_name=(await author.findById(comment.aId)).name;
         let c=comment.toObject();
         c._id=comment._id;
         c.author=author_name,
         datas.push(c);
+        if((idx===comments.length-1)){
+            next_start=+comment._id+1;
+        }
     }
         res.json({
             count:datas.length,
-            data:datas
+            next:next_start,
+            data:datas,
         });
 }));
 

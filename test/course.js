@@ -29,7 +29,7 @@ describe('CourseRouter', () => {
         });
     });
 
-    describe('GET MESSAGE', () => {
+    describe('GET COMMENT', () => {
         it('it should return comments of course 1', (done) => {
             chai.request(server).get('/api/v1/course/1/comment')
                 .end((err, res) => {

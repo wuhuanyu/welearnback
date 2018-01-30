@@ -45,7 +45,7 @@ module.exports.teacher_auth=applyEMW(async (req,res,next)=>{
  */
 module.exports.student_auth=applyEMW(async (req,res,next)=>{
     req.auth={};
-    console.log(JSON.stringify(req.body));
+    // console.log(JSON.stringify(req.body));
     let authorization=req.get('authorization');
     if(!authorization) {
         res.set('WWW-Authenticate','Basic realm="Authorization Required"');
@@ -56,7 +56,7 @@ module.exports.student_auth=applyEMW(async (req,res,next)=>{
         //    console.log(pass);
         let name=credentials[0],pass=credentials[1];
         let found=await checkAuth(false,name,pass);
-        console.log(JSON.stringify(found));
+        // console.log(JSON.stringify(found));
         if(found) {
             req.auth.id=found.id;
             req.auth.name=found.name;

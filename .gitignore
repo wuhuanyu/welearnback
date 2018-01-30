@@ -2,3 +2,5 @@ node_modules/
 uploads/
 .idea/
 .vscode/
+
+public/videos/

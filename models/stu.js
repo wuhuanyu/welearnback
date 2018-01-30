@@ -7,6 +7,7 @@ module.exports = (sequelize, DataTypes) => {
         gender: DataTypes.INTEGER,
         push_token:DataTypes.INTEGER,
         login:DataTypes.BOOLEAN,
+        avatar:DataTypes.STRING,
     }, {
         classMethods: {
             associate: function(models) {

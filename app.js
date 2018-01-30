@@ -25,6 +25,7 @@ else mongoose.connect('mongodb://localhost:27017/welearn_test');
 
 app.use(morgan('dev'));
 app.use('/images', express.static('uploads/images'));
+app.use('/avatars',express.static('uploads/avatars'));
 app.use('/', WebApp);
 // app.use(logger('dev'));
 app.use(bodyParser.json());
