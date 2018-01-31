@@ -2,7 +2,7 @@
   "development": {
     "username": "root",
     "password": "why90951213",
-    "database": "welearn",
+    "database": "dev",
     "host": "127.0.0.1",
     "dialect": "mysql"
   },

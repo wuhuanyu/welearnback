@@ -1,5 +1,5 @@
 const Sequelize = require('sequelize');
-let db=process.env.NODE_ENV==='test'? 'test':'welearn';
+let db=process.env.NODE_ENV==='test'? 'test':'dev';
 const sequelize = new Sequelize(db, 'root', 'why90951213', {
     host: 'localhost',
     dialect: 'mysql',
