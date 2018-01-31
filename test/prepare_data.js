@@ -1,3 +1,5 @@
+import { model } from 'mongoose';
+
 const mongoose = require('mongoose');
 process.env.NODE_ENV = 'dev';
 
@@ -27,6 +29,7 @@ const drop = async () => {
     await models.StuCourse.drop();
     await models.TeaCourse.drop();
     await models.MessageRecipient.drop();
+    await models.Video.drop();
     await models.Message.drop();
     await models.Bulletin.drop();
     await models.QuestionDetail.drop();
@@ -43,6 +46,7 @@ const sync = async () => {
     await models.Stu.sync();
     await models.Teacher.sync();
     await models.Course.sync();
+    await models.Video.sync();
 
     await models.StuCourse.sync();
     await models.TeaCourse.sync();
