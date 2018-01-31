@@ -15,8 +15,8 @@ module.exports = {
                 type: Sequelize.INTEGER,
                 allowNull: null,
                 references:{
-                  model:'stus',
-                  key:'id',
+                    model:'stus',
+                    key:'id',
                 }
             },
             finished: {
@@ -27,7 +27,7 @@ module.exports = {
         }, {
             timestamps: false,
         }).then(()=>{
-          return queryInterface.sequelize.query('ALTER TABLE question_details drop primary key,add PRIMARY KEY (question_id,student_id)');
+            return queryInterface.sequelize.query('ALTER TABLE question_details drop primary key,add PRIMARY KEY (question_id,student_id)');
         });
     },
     down: (queryInterface, Sequelize) => {

@@ -15,12 +15,14 @@ const QSchema=mongoose.Schema({
     anss:{
         type:[AnsSchema],
     },
-    
+    images:[String],
+    files:[String],
     time:Number,
 });
 
 auto_increment.initialize(mongoose.connection);
 QSchema.plugin(auto_increment.plugin,{model:'question',field:'_id'});
+AnsSchema.plugin(auto_increment.plugin,{model:'question',field:'_id'});
 
 const Question= mongoose.model('question',QSchema,'questions');
 Question.checkedFields=['type','cId','tId','body'];

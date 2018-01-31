@@ -31,18 +31,10 @@ module.exports = {
                 allowNull:true,
                 defaultValue:'default_avatar.jpg'
             },
-            createdAt: {
-                allowNull: false,
-                type: Sequelize.DATE,
-                defaultValue:Sequelize.literal('CURRENT_TIMESTAMP'),
-            },
-            updatedAt: {
-                allowNull: false,
-                type: Sequelize.DATE,
-                defaultValue:Sequelize.literal('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'),
-            }
+            
         },{
-            charset:'utf8'
+            charset:'utf8',
+            timestamps:false,
         });
     },
     down: (queryInterface, Sequelize) => {

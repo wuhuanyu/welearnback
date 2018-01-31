@@ -16,7 +16,7 @@ module.exports = {
             {name:'Stack',password:'1a1dc91c907325c69271ddf0c944bc72',gender:21},
             {name:'Kate',password:'1a1dc91c907325c69271ddf0c944bc72',gender:22},
             {name:'Perry',password:'1a1dc91c907325c69271ddf0c944bc72',gender:22},
-            {name:'mike',password:'1a1dc91c907325c69271ddf0c944bc72',gender:21},
+            {name:'Mike',password:'1a1dc91c907325c69271ddf0c944bc72',gender:21},
         ]);
     },
 

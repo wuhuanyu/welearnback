@@ -6,12 +6,15 @@ module.exports = (sequelize, DataTypes) => {
         gender:DataTypes.INTEGER,
         push_token:DataTypes.STRING,
         login:DataTypes.BOOLEAN,
+        avatar:DataTypes.STRING,
     }, {
         classMethods: {
             associate: function(models) {
         
             }
-        }
+        },
+        timestamps:false,
+        charset:'utf8'
     });
     return Teacher;
 };

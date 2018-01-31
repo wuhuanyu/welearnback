@@ -10,6 +10,7 @@ module.exports = (sequelize, DataTypes) => {
             }
         },
         charset:'utf8',
+        timestamps:false,
     });
     return _course;
 };

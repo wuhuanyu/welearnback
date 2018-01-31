@@ -13,7 +13,7 @@ module.exports = {
       }], {});
     */
         return queryInterface.bulkInsert('fileuploads', [
-            // image for question
+            // image for course
             { aT: 11, aId: 1, forT: 42, fId: 1, original_name: 'math1.jpg', name: 'math1.jpg', dir: 'math1.jpg',fT:53 },
             { aT: 11, aId: 1, forT: 42, fId: 1, original_name: 'math2.jpg', name: 'math2.jpg', dir: 'math2.jpg' ,fT:53 },
 

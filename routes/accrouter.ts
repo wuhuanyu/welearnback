@@ -20,6 +20,7 @@ import avatar_middleware from '../config/avatar.config';
 import * as express from 'express';
 import * as fs from 'fs-extra';
 import * as multer from 'multer';
+import { reset } from '_@types_continuation-local-storage@3.2.1@@types/continuation-local-storage';
 /**
  * login
  * /acc
@@ -44,7 +45,7 @@ router.post('', applyEMW(async (req: express.Request, res: express.Response, nex
 /**
  * student signup
  */
-router.post('/stu', avatar_middleware, applyEMW(async (req: express.Request, res: express.Request, next: express.NextFunction) => {
+router.post('/stu', avatar_middleware, applyEMW(async (req: express.Request, res: express.Response, next: express.NextFunction) => {
     let uBody = req.body;
     let keys = Object.keys(uBody); let file: Express.Multer.File = req.file;
     //check fields must have name,password,gender
@@ -54,7 +55,7 @@ router.post('/stu', avatar_middleware, applyEMW(async (req: express.Request, res
         if (stuFind) {
             if (file != null) {
                 try{
-                    await fs.unlink(file.destination);
+                    await fs.unlink(file.destination+'/'+file.filename);
                 }catch(e){
                     
                 }
@@ -68,6 +69,10 @@ router.post('/stu', avatar_middleware, applyEMW(async (req: express.Request, res
                 gender: +g,
                 avatar:file.filename,
             }).save();
+            res.json({
+                msg:'Sign up ok',
+                result:newStu.id,
+            })
         }
     } else {
         next(getError(400, "Wrong format for Stu signup"));
@@ -81,6 +86,17 @@ router.post('/stu', avatar_middleware, applyEMW(async (req: express.Request, res
 router.put('/stu',avatar_middleware,stu_auth,applyEMW(async(req:express.Request,res:express.Response,next:express.NextFunction) => {
     let body=req.body;
     let new_password=body['new_password'];
+    //upload avatar
+    if(req.file){
+        let found=await Stu.findOne({where:{id:req.auth.id}});
+        await found.update({
+            avatar:req.file.filename,
+        });
+        res.json({
+            msg:'Avatar update Ok',
+            result:found.id
+        });
+    }
 }));
 
 /**
@@ -117,7 +133,7 @@ router.post(/^\/stu\/([0-9]+)\/course$/, stu_auth, applyEMW(async (req, res, nex
  * /stu/12/course
  * tested
  */
-router.get(/^\/stu\/([0-9]+)\/course$/, student_auth, applyEMW(async (req, res, next) => {
+router.get(/^\/stu\/([0-9]+)\/course$/,stu_auth, applyEMW(async (req, res, next) => {
     let sID = req.params[0];
     let stu_courses = await StuCourse.findAll({ where: { sId: sID }, attributes: ['sId', 'cId'] });
     if (stu_courses.length === 0) throw getError(404, "You have not select courses");

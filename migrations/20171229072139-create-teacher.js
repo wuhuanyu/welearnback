@@ -1,3 +1,4 @@
+
 'use strict';
 module.exports = {
     up: (queryInterface, Sequelize) => {
@@ -18,6 +19,11 @@ module.exports = {
                 // allowNull:false,
                 type:Sequelize.INTEGER,
             },
+            avatar:{
+                type:Sequelize.STRING,
+                allowNull:false,
+                defaultValue:'default_avatar.jpg',
+            },
             push_token:{
                 type:Sequelize.STRING,
                 allowNull:true,
@@ -27,18 +33,11 @@ module.exports = {
                 allowNull:false,
                 defaultValue:false,
             },
-            createdAt: {
-                allowNull: false,
-                type: Sequelize.DATE,
-                defaultValue:Sequelize.literal('CURRENT_TIMESTAMP'),
-            },
-            updatedAt: {
-                allowNull: false,
-                type: Sequelize.DATE,
-                defaultValue:Sequelize.literal('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'),
-            }
+            
+        
         },{
-            charset:'utf8'
+            charset:'utf8',
+            timestamps:false,
         });
     },
     down: (queryInterface, Sequelize) => {
