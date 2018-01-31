@@ -249,7 +249,7 @@ router.use(/^\/([0-9]+)\/message$/, auth_middleware_1.common_auth, (req, res, ne
 },require('./message_router'));
 
 
-router.use(/^\/([0-9]+)\/video$/,(req,res,next)=>{
+router.use(/^\/([0-9]+)\/video/,(req,res,next)=>{
     req.url_params=req.url_params||{};
     req.url_params['course_id']=req.params[0];
     next();
