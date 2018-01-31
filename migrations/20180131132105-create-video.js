@@ -28,7 +28,7 @@ module.exports = {
         type: Sequelize.STRING
       },
       upload_time:{
-        type:Sequelize.INTEGER,
+        type:Sequelize.BIGINT(11),
       }
     },{
       timestamps:false,

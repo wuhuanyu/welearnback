@@ -74,6 +74,23 @@ describe('prepare data', () => {
                     name: c,
                     desc: course_desc,
                 }).save();
+                //insert video
+                for(let i=0;i<6;i++){
+                 let saved_video=await models.Video.build({
+                     course_id:saved.id,
+                     name:`chapter ${i}`,
+                     size:getRandomInt(3000,50000),
+                     link:"api/video",
+                     avatar:'common'+i%3+'.jpg',
+                     upload_time:new Date().getTime(),
+                 }).save();
+                 let vN=`chapter ${i}`;
+                  await models._File.build({
+                                aT: 11, aId: 1, forT: constants.ForT_Video, fId: saved_video.id, original_name: vN, name: vN, dir: vN, fT: constants.FT_IMAGE
+                            }).save();
+
+                }
+
                 //insert question
                 for (let i = 0; i < 3; i++) {
                     let question_image1 = 'common' + i % 3 + '.jpg';
@@ -199,6 +216,7 @@ describe('prepare data', () => {
             }
         });
     });
+
 });
 
 

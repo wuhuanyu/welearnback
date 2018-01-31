@@ -12,7 +12,7 @@ module.exports = (sequelize, DataTypes) => {
     size: DataTypes.INTEGER,
     link: DataTypes.STRING,
     avatar: DataTypes.STRING,
-    upload_time:DataTypes.INTEGER,
+    upload_time:DataTypes.BIGINT(11),
   }, {
       classMethods: {
         associate: function (models) {

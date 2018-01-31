@@ -22,6 +22,7 @@ export const ForT_Comment=41;
 export const ForT_Question=42;
 export const ForT_Course=43;
 export const ForT_Ans=44;
+export const ForT_Video=45;
 
 //file types,image or common file
 export const FT_FILE=52;
