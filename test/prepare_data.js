@@ -84,7 +84,7 @@ describe('prepare data', () => {
                      avatar:'common'+i%3+'.jpg',
                      upload_time:new Date().getTime(),
                  }).save();
-                 let vN=`chapter ${i}`;
+                 let vN=`common${i%3}.jpg`;
                   await models._File.build({
                                 aT: 11, aId: 1, forT: constants.ForT_Video, fId: saved_video.id, original_name: vN, name: vN, dir: vN, fT: constants.FT_IMAGE
                             }).save();
