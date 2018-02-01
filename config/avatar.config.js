@@ -1,7 +1,7 @@
-'use strict';
-Object.defineProperty(exports, '__esModule', { value: true });
-const multer = require('multer');
-const path = require('path');
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const multer = require("multer");
+const path = require("path");
 const avatarDest = path.resolve(__dirname + '/../uploads/avatars');
 const storage = multer.diskStorage({
     destination: (req, file, cbk) => {

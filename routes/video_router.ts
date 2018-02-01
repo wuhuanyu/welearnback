@@ -4,8 +4,9 @@ const router = express.Router();
 import * as _path from 'path';
 import * as fs from 'fs-extra';
 import { pathExists } from 'fs-extra';
+const getError=require('../utils/error');
 
-
+const models =require('../models/models');
 const file_path=__dirname+'/../public/videos/video1.mp4';
 
 
@@ -44,7 +45,14 @@ router.get(/^\/([0-9]+)$/, applyErrorMW(async (req: express.Request, res: expres
 
 router.get(/^\/list$/,applyErrorMW(async(req:express.Request,res:express.Response,next:express.NextFunction)=>{
     let course_id=req.url_params['course_id'];
-    
+    let videos=await models.Video.findAll({where:{course_id:course_id}});
+    if(videos.length===0) throw getError(404,"Resoure not found");
+    else{
+        res.json({
+            count:videos.length,
+            data:videos,
+        });
+    }
 }));
 
 module.exports=router;

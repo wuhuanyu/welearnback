@@ -7,7 +7,7 @@
     "start_push_service": "nodemon --exec babel-node ./bin/push_www.js",
     "restart": "./init.sh",
     "test": "./node_modules/.bin/mocha --compilers js:babel-core/register ./test/**/*.js --exit",
-    "prepare":"./node_modules/.bin/mocha --compilers js:babel-core/register ./test/prepare_data.js --exit"
+    "prepare": "./node_modules/.bin/mocha --compilers js:babel-core/register ./test/prepare_data.js --exit"
   },
   "dependencies": {
     "async-mqtt": "^1.0.1",
@@ -37,6 +37,8 @@
     "uuid": "^3.1.0"
   },
   "devDependencies": {
+    "@types/chai": "^4.1.2",
+    "@types/chai-http": "^3.0.3",
     "@types/express": "^4.11.0",
     "@types/fs-extra": "^5.0.0",
     "@types/multer": "^1.3.6",

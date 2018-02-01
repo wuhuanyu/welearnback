@@ -27,6 +27,9 @@ const commont_auth = require('../auth/auth_middleware').common_auth;
 const uuid = require('uuid/v1');
 const md5=require('md5');
 const _globals=require('../globals');
+import * as express from 'express';
+
+
 const getTeacherName = async (options) => {
     let { tId } = options;
     let teacher = await Teacher.findOne({ where: { id: tId }, attributes: ['name'] });
@@ -289,6 +292,16 @@ router.use(/^\/([0-9]+)\/message$/,common_auth,(req,res,next)=>{
     });
     next();
 },require('./message_router'));
+
+
+
+
+router.use(/^\/([0-9]+)\/video/,(req:express.Request,res:express.Response,next:express.NextFunction)=>{
+    req.url_params=req.url_params||{};
+    req.url_params.course_id=req.params[0];
+    next();
+},require('./video_router'));
+
 
 export default router;
 export {getImageNames};

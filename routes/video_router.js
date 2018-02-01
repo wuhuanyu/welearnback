@@ -12,6 +12,8 @@ const express = require("express");
 const applyErrorMW = require('../utils/async_middleware');
 const router = express.Router();
 const fs = require("fs-extra");
+const getError = require('../utils/error');
+const models = require('../models/models');
 const file_path = __dirname + '/../public/videos/video1.mp4';
 router.get(/^\/([0-9]+)$/, applyErrorMW((req, res, next) => __awaiter(this, void 0, void 0, function* () {
     let course_id = req.url_params['course_id'];
@@ -40,6 +42,18 @@ router.get(/^\/([0-9]+)$/, applyErrorMW((req, res, next) => __awaiter(this, void
         };
         res.writeHead(200, head);
         fs.createReadStream(file_path).pipe(res);
+    }
+})));
+router.get(/^\/list$/, applyErrorMW((req, res, next) => __awaiter(this, void 0, void 0, function* () {
+    let course_id = req.url_params['course_id'];
+    let videos = yield models.Video.findAll({ where: { course_id: course_id } });
+    if (videos.length === 0)
+        throw getError(404, "Resoure not found");
+    else {
+        res.json({
+            count: videos.length,
+            data: videos,
+        });
     }
 })));
 module.exports = router;

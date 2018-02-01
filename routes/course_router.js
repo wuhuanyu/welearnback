@@ -1,25 +1,25 @@
-'use strict';
+"use strict";
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     return new (P || (P = Promise))(function (resolve, reject) {
         function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator['throw'](value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
         function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-Object.defineProperty(exports, '__esModule', { value: true });
+Object.defineProperty(exports, "__esModule", { value: true });
 const router = require('express').Router();
 const models = require('../models/models');
 const Question = models.Question, Comment = models.Comment, Course = models.Course;
 const getError = require('../utils/error');
 const findByFieldFactory = require('../utils/commonquery');
-const TAG = '[CourseRouter]: ';
+const TAG = "[CourseRouter]: ";
 const constants = require('../constants');
 const _File = require('../models/models').UploadFile;
 const Constants = constants;
-const check_1 = require('../utils/check');
-const uploadconfig_1 = require('../config/uploadconfig');
-const auth_middleware_1 = require('../auth/auth_middleware');
+const check_1 = require("../utils/check");
+const uploadconfig_1 = require("../config/uploadconfig");
+const auth_middleware_1 = require("../auth/auth_middleware");
 const OP = require('sequelize').Op;
 const Teacher = require('../models/models').Teacher;
 const TeaCourse = require('../models/models').TeaCourse;
@@ -88,20 +88,20 @@ router.post('', teacher_auth, uploadconfig_1.defaultConfig, (req, res, next) => 
             Promise.all(savePromsies).then(saved => {
                 res.status(200).json({
                     result: savedC.id,
-                    msg: 'Course Uploaded Successfully'
+                    msg: "Course Uploaded Successfully"
                 });
             });
         });
     }
     else {
-        next(getError(400, 'Course Wrong Format'));
+        next(getError(400, "Course Wrong Format"));
     }
 });
 router.get(/^\/([0-9]+)$/, errMW((req, res, next) => __awaiter(this, void 0, void 0, function* () {
     let id = req.params[0];
     let course = yield Course.findById(+id);
     if (!course)
-        throw getError(400, 'No such resource');
+        throw getError(400, "No such resource");
     let courseFound = course.toJSON();
     let images = yield getImageNames({ fT: Constants.FT_FILE, fId: course.id, forT: Constants.ForT_Course });
     courseFound.images = images;
@@ -116,7 +116,7 @@ router.get('', applyErrMiddleware((req, res, next) => __awaiter(this, void 0, vo
     let n = req.query.name;
     let course = yield Course.findOne({ where: { name: n } });
     if (!course)
-        throw getError(404, 'No such resource');
+        throw getError(404, "No such resource");
     let images = yield getImageNames({ fT: Constants.FT_FILE, fId: course.id, forT: Constants.ForT_Course });
     let courseFound = course.toJSON();
     courseFound.images = images;
@@ -133,7 +133,7 @@ router.get('/all', applyErrMiddleware((req, res, next) => __awaiter(this, void 0
         where: { id: { [OP.between]: [start, start + count] } },
     });
     if (coursesFound.length === 0)
-        throw getError(404, 'No more resources');
+        throw getError(404, "No more resources");
     let courses = coursesFound.map(c => c.toJSON());
     for (let c of courses) {
         let imagesFound = yield getImageNames({ forT: Constants.ForT_Course, fId: c.id });
@@ -151,7 +151,7 @@ router.get(/^\/([0-9]+)\/comment$/, applyErrMiddleware((req, res, next) => __awa
     let start = +req.query.start || 0, limit = +req.query.limit || 5;
     let comments = yield models.Comment.find({ forT: constants.ForT_Course, forId: course_id }).where('_id').gt(start - 1).limit(limit);
     if (comments.length === 0)
-        throw getError(404, 'No such resource');
+        throw getError(404, "No such resource");
     let datas = [];
     let next_start = -1;
     for (let [idx, comment] of comments.entries()) {
@@ -194,13 +194,13 @@ router.post(/^\/([0-9]+)\/comment$/, auth_middleware_1.common_auth, applyErrMidd
             msg: 'Comment successfully'
         });
     }
-    
+    ;
 })));
 router.get(/^\/([0-9]+)\/users$/, applyErrMiddleware((req, res, next) => __awaiter(this, void 0, void 0, function* () {
     let course_id = req.params[0];
     let stu_courses = yield models.StuCourse.findAll({ where: { cId: course_id }, attributes: ['sId'] });
     if (stu_courses.length === 0)
-        throw getError(404, 'No such resources');
+        throw getError(404, "No such resources");
     let tea_courses = yield models.TeaCourse.findAll({ where: { cId: course_id }, attributes: ['tId'] });
     let datas = [];
     for (let tea of tea_courses) {
@@ -246,17 +246,10 @@ router.use(/^\/([0-9]+)\/message$/, auth_middleware_1.common_auth, (req, res, ne
         req.url_queries[k] = req.query[k];
     });
     next();
-},require('./message_router'));
-
-
-router.use(/^\/([0-9]+)\/video/,(req,res,next)=>{
-    req.url_params=req.url_params||{};
-    req.url_params['course_id']=req.params[0];
+}, require('./message_router'));
+router.use(/^\/([0-9]+)\/video/, (req, res, next) => {
+    req.url_params = req.url_params || {};
+    req.url_params.course_id = req.params[0];
     next();
-},require('./video_router'));
-
-
-
-
-export default router;
-export {getImageNames};
+}, require('./video_router'));
+exports.default = router;
