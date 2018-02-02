@@ -32,6 +32,7 @@ const commont_auth = require('../auth/auth_middleware').common_auth;
 const uuid = require('uuid/v1');
 const md5 = require('md5');
 const _globals = require('../globals');
+const push = require('../globals').mqtt_client;
 const getTeacherName = (options) => __awaiter(this, void 0, void 0, function* () {
     let { tId } = options;
     let teacher = yield Teacher.findOne({ where: { id: tId }, attributes: ['name'] });
@@ -185,9 +186,11 @@ router.post(/^\/([0-9]+)\/comment$/, auth_middleware_1.common_auth, applyErrMidd
         body: req.body.body,
     }).save();
     if (saved) {
+        let data = saved.toObject();
+        data.course_name = (yield models.Course.findOne({ _id: course_id })).name;
         _globals.mqtt_client.publish(`${course_id}`, JSON.stringify({
-            type: constants.new_comment_course_by_teacher,
-            payload: saved,
+            type: constants.new_comment_course,
+            payload: data,
         }));
         res.json({
             result: saved.id,

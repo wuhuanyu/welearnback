@@ -29,6 +29,8 @@ const md5=require('md5');
 const _globals=require('../globals');
 import * as express from 'express';
 
+const push=require('../globals').mqtt_client;
+
 
 const getTeacherName = async (options) => {
     let { tId } = options;
@@ -197,6 +199,7 @@ router.get(/^\/([0-9]+)\/comment$/,applyErrMiddleware(async (req,res,next)=>{
             next_start=+comment._id+1;
         }
     }
+
         res.json({
             count:datas.length,
             next:next_start,
@@ -221,9 +224,11 @@ router.get(/^\/([0-9]+)\/comment$/,applyErrMiddleware(async (req,res,next)=>{
          body:req.body.body,
      }).save();
      if(saved){
+          let data=saved.toObject();
+          data.course_name=(await models.Course.findOne({_id:course_id})).name;
          _globals.mqtt_client.publish(`${course_id}`,JSON.stringify({
-             type:constants.new_comment_course_by_teacher,
-             payload:saved,
+             type:constants.new_comment_course,
+             payload:data,
          }))
          res.json({
              result:saved.id,

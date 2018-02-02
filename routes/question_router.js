@@ -12,7 +12,7 @@ const isImage=require('../utils/check').isImage;
 const getError=require('../utils/error');
 const applyErrMiddleware=require('../utils/async_middleware');
 const findByFieldFactory=require('../utils/commonquery');
-
+const _globals=require('../globals');
 /**
  * 
  * @param {Object} options 
@@ -36,7 +36,7 @@ const getImageNames = async (options) => {
  * post question of a certain course
  * /23/question
  */
-router.post('', teacher_auth, defaultConfig, applyErrMiddleware((req, res, next) => {
+router.post('', teacher_auth, defaultConfig, applyErrMiddleware(async (req, res, next) => {
     let b = req.body, cid = req.url_params.course_id;
     let auth = req.auth;
     let files = (req.files&&req.files['upload'])||[];

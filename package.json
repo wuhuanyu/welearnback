@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "start": " nodemon --exec babel-node ./bin/www",
-    "start_push_service": "nodemon --exec babel-node ./bin/push_www.js",
+    "set_up_push": " ./node_modules/.bin/mosca -v ./node_modules/.bin/pino",
     "restart": "./init.sh",
     "test": "./node_modules/.bin/mocha --compilers js:babel-core/register ./test/**/*.js --exit",
     "prepare": "./node_modules/.bin/mocha --compilers js:babel-core/register ./test/prepare_data.js --exit"
@@ -29,6 +29,7 @@
     "mqtt": "^2.15.1",
     "multer": "^1.3.0",
     "mysql2": "^1.5.1",
+    "pino": "^4.10.3",
     "reflect-metadata": "^0.1.12",
     "sequelize": "^4.28.6",
     "sequelize-typescript": "^0.6.2",
