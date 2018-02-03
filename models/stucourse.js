@@ -14,6 +14,14 @@ module.exports = (sequelize, DataTypes) => {
                 model:'courses',
                 key:'id'
             }
+        },
+        finished:{
+            type:DataTypes.BOOLEAN,
+            defaultValue:false,
+        },
+        score:{
+            type:DataTypes.INTEGER,
+            allowNull:true,
         }
     }, {
         classMethods: {

@@ -26,7 +26,7 @@ import { reset } from '_@types_continuation-local-storage@3.2.1@@types/continuat
  * /acc
  */
 router.post('', applyEMW(async (req: express.Request, res: express.Response, next: express.NextFunction) => {
-    let uBody = req.body, name = uBody.name, password:string = md5(uBody.password), type:number = +uBody.type, action:string = uBody.action;
+    let uBody = req.body, name = uBody.name, password: string = md5(uBody.password), type: number = +uBody.type, action: string = uBody.action;
     if (!action.toLowerCase() in ['login', 'logout'])
         throw getError(404, "Illegal action");
     let user = (type === ACC_T_Stu ? Stu : Teacher);
@@ -54,10 +54,10 @@ router.post('/stu', avatar_middleware, applyEMW(async (req: express.Request, res
         let stuFind = await Stu.findOne({ where: { name: n } });
         if (stuFind) {
             if (file != null) {
-                try{
-                    await fs.unlink(file.destination+'/'+file.filename);
-                }catch(e){
-                    
+                try {
+                    await fs.unlink(file.destination + '/' + file.filename);
+                } catch (e) {
+
                 }
             }
             throw getError(400, "Name exsits already");
@@ -67,11 +67,11 @@ router.post('/stu', avatar_middleware, applyEMW(async (req: express.Request, res
                 name: n,
                 password: md5(p),
                 gender: +g,
-                avatar:file.filename,
+                avatar: file.filename,
             }).save();
             res.json({
-                msg:'Sign up ok',
-                result:newStu.id,
+                msg: 'Sign up ok',
+                result: newStu.id,
             })
         }
     } else {
@@ -83,18 +83,18 @@ router.post('/stu', avatar_middleware, applyEMW(async (req: express.Request, res
  * updata
  * TODO: update profile 
  */
-router.put('/stu',avatar_middleware,stu_auth,applyEMW(async(req:express.Request,res:express.Response,next:express.NextFunction) => {
-    let body=req.body;
-    let new_password=body['new_password'];
+router.put('/stu', avatar_middleware, stu_auth, applyEMW(async (req: express.Request, res: express.Response, next: express.NextFunction) => {
+    let body = req.body;
+    let new_password = body['new_password'];
     //upload avatar
-    if(req.file){
-        let found=await Stu.findOne({where:{id:req.auth.id}});
+    if (req.file) {
+        let found = await Stu.findOne({ where: { id: req.auth.id } });
         await found.update({
-            avatar:req.file.filename,
+            avatar: req.file.filename,
         });
         res.json({
-            msg:'Avatar update Ok',
-            result:found.id
+            msg: 'Avatar update Ok',
+            result: found.id
         });
     }
 }));
@@ -133,10 +133,24 @@ router.post(/^\/stu\/([0-9]+)\/course$/, stu_auth, applyEMW(async (req, res, nex
  * /stu/12/course
  * tested
  */
-router.get(/^\/stu\/([0-9]+)\/course$/,stu_auth, applyEMW(async (req, res, next) => {
-    let sID = req.params[0];
-    let stu_courses = await StuCourse.findAll({ where: { sId: sID }, attributes: ['sId', 'cId'] });
-    if (stu_courses.length === 0) throw getError(404, "You have not select courses");
+router.get(/^\/stu\/([0-9]+)\/course$/, stu_auth, applyEMW(async (req: express.Request, res: express.Response, next: express.NextFunction) => {
+    let student_id = req.params[0];
+    let query_type = req.query.type || 'all';
+    let where;
+    switch (query_type) {
+        case 'all':
+            where = { sId: student_id };
+            break;
+        case 'finished':
+            where = { sId: student_id, finished: true };
+            break;
+        case 'unfinished':
+            where = { sId: student_id, finished: false };
+            break;
+        default: break;
+    }
+    let stu_courses = await StuCourse.findAll({ where: where, attributes: ['sId', 'cId'] });
+    if (stu_courses.length === 0) throw getError(404);
     let courseIds = [];
     let datas = [];
     for (let sc of stu_courses) {

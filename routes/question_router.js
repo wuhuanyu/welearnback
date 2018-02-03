@@ -251,6 +251,7 @@ router.get(/\/(\w+)\/comment$/, applyErrMiddleware(async (req, res, next) => {
         // console.log(data);
         let images = await getImageNames({ forT: constants.ForT_Comment, fId: comment._id });
         data.author = userFound.name;
+        data.avatar=userFound.avatar;
         data.images = images;
         datas.push(data);
         if (idx === 0) {

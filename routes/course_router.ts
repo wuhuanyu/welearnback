@@ -213,7 +213,7 @@ router.get(/^\/([0-9]+)\/comment$/,applyErrMiddleware(async (req,res,next)=>{
 
  router.post(/^\/([0-9]+)\/comment$/,common_auth,applyErrMiddleware(async (req,res,next)=>{
      let auth=req.auth,is_teacher=auth.type===constants.ACC_T_Tea;
-     let course_id=req.params[0];
+     let course_id=parseInt(req.params[0],10);
      let time=new Date().getTime();
      let saved=  await new models.Comment({
          forT:constants.ForT_Course,

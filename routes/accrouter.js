@@ -116,10 +116,24 @@ router.post(/^\/stu\/([0-9]+)\/course$/, stu_auth, applyEMW((req, res, next) => 
     }
 })));
 router.get(/^\/stu\/([0-9]+)\/course$/, stu_auth, applyEMW((req, res, next) => __awaiter(this, void 0, void 0, function* () {
-    let sID = req.params[0];
-    let stu_courses = yield StuCourse.findAll({ where: { sId: sID }, attributes: ['sId', 'cId'] });
+    let student_id = req.params[0];
+    let query_type = req.query.type || 'all';
+    let where;
+    switch (query_type) {
+        case 'all':
+            where = { sId: student_id };
+            break;
+        case 'finished':
+            where = { sId: student_id, finished: true };
+            break;
+        case 'unfinished':
+            where = { sId: student_id, finished: false };
+            break;
+        default: break;
+    }
+    let stu_courses = yield StuCourse.findAll({ where: where, attributes: ['sId', 'cId'] });
     if (stu_courses.length === 0)
-        throw getError(404, "You have not select courses");
+        throw getError(404);
     let courseIds = [];
     let datas = [];
     for (let sc of stu_courses) {

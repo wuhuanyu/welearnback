@@ -16,6 +16,15 @@ module.exports = {
                 type:Sequelize.INTEGER,
                 references:{model:'courses',key:'id'},
             },
+            finished:{
+                type:Sequelize.BOOLEAN,
+                defaultValue:false,
+                allowNull:false,
+            },
+            score:{
+                type:Sequelize.INTEGER,
+                allowNull:true,
+            }
            
         },{
             charset:'utf8',

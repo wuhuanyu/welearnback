@@ -175,7 +175,7 @@ router.get(/^\/([0-9]+)\/comment$/, applyErrMiddleware((req, res, next) => __awa
 })));
 router.post(/^\/([0-9]+)\/comment$/, auth_middleware_1.common_auth, applyErrMiddleware((req, res, next) => __awaiter(this, void 0, void 0, function* () {
     let auth = req.auth, is_teacher = auth.type === constants.ACC_T_Tea;
-    let course_id = req.params[0];
+    let course_id = parseInt(req.params[0], 10);
     let time = new Date().getTime();
     let saved = yield new models.Comment({
         forT: constants.ForT_Course,
