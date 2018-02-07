@@ -10,6 +10,7 @@
     "prepare": "./node_modules/.bin/mocha --compilers js:babel-core/register ./test/prepare_data.js --exit"
   },
   "dependencies": {
+    "amqplib": "^0.5.2",
     "async-mqtt": "^1.0.1",
     "body-parser": "~1.18.2",
     "cookie-parser": "~1.4.3",
