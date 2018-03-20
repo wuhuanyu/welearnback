@@ -1,5 +1,3 @@
-import { model } from 'mongoose';
-
 const mongoose = require('mongoose');
 process.env.NODE_ENV = 'dev';
 
@@ -135,6 +133,7 @@ describe('prepare data', () => {
                 let filename = getRandomInt(1, 6) + '.jpg';
                 let file = { aT: 11, aId: 1, forT: constants.ForT_Course, fId: saved.id, original_name: filename, name: filename, dir: filename, fT: constants.FT_IMAGE };
                 await models._File.build(file).save();
+                
             }
         });
     });

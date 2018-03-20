@@ -1,6 +1,7 @@
 
 const mqtt=require('mqtt');
 const mqtt_client=mqtt.connect('tcp://localhost',{clientId:'welearn_back'});
+<<<<<<< HEAD
 const redis=require('redis');
 
 const bluebird=require('bluebird');
@@ -29,4 +30,15 @@ module.exports={
     msg_queue:msg_queue,
     timeline_queue:timeline_queue,
     redis:client,
+=======
+// mqtt_client.on('connect',()=>{
+// 	console.log('mqtt connect to message broker');
+// });
+
+
+const open=require('amqplib').connect('amqp://localhost');
+module.exports={
+    mqtt_client,
+    mq:open
+>>>>>>> 56bf8aea83c72e6a2c923fab470d68a9e0706a06
 };
