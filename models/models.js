@@ -37,7 +37,8 @@ module.exports = {
     _File:db.import(__dirname+'/fileupload.js'),
     MessageRecipient:db.import(__dirname+'/message_recipient.js'),
     QuestionDetail:db.import(__dirname+'/question_detail.js'),
-    Video:db.import(__dirname+'/video.js')
+    Video:db.import(__dirname+'/video.js'),
+    Moment:db.import(__dirname+'/moment.js'),
 	
     // Message:require('./message'),
 };

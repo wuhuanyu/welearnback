@@ -27,23 +27,59 @@ const TeaCourse = require('../models/models').TeaCourse;
 const stu_auth = require('../auth/auth_middleware').student_auth;
 const avatar_config_1 = require("../config/avatar.config");
 const fs = require("fs-extra");
+const _redis = require("redis");
+const bluebird = require("bluebird");
+bluebird.promisifyAll(_redis.RedisClient.prototype);
+bluebird.promisifyAll(_redis.Multi.prototype);
+const redis = _redis.createClient();
+const _idgen = require('uuid-token-generator');
+const idgen = new _idgen();
 router.post('', applyEMW((req, res, next) => __awaiter(this, void 0, void 0, function* () {
     let uBody = req.body, name = uBody.name, password = md5(uBody.password), type = +uBody.type, action = uBody.action;
-    if (!action.toLowerCase() in ['login', 'logout'])
+    if (['login', 'logout'].indexOf(action) < 0)
         throw getError(404, "Illegal action");
+    let isLogin = action.toLowerCase() === 'login';
     let user = (type === constants_1.ACC_T_Stu ? Stu : Teacher);
     let found = yield user.findOne({ where: { name: name, password: password } });
     let updated;
     if (!found)
         throw getError(401, "Wrong credentials");
-    else
-        updated = yield found.update({
-            login: action === 'login'
+    if (isLogin) {
+        let haveLogin = yield redis.hgetallAsync('user:' + found.id);
+        console.log(JSON.stringify(haveLogin));
+        if (haveLogin) {
+            console.log("you have login");
+            yield redis.hmsetAsync('user:' + found.id, 'login_time', new Date().getTime(), 'EX', 30 * 60);
+            yield found.update({
+                login: isLogin,
+                token: haveLogin.token,
+            });
+            res.json({
+                token: haveLogin.token,
+                id: found.id,
+            }).end();
+        }
+        else {
+            let token = idgen.generate();
+            yield redis.hmsetAsync('user:' + found.id, "username", found.name, "password", found.password, "login_time", new Date().getTime(), "type", type, "token", token, "avatar", found.avatar, 'EX', 30 * 60);
+            yield found.update({
+                login: isLogin,
+                token: token,
+            });
+            res.json({
+                token: token,
+                id: found.id,
+            }).end();
+        }
+    }
+    else {
+        yield redis.delAsync('user:' + found.id);
+        yield found.update({
+            login: action.toLowerCase() === 'login',
+            token: '0',
         });
-    res.status(200).json({
-        result: updated.id,
-        msg: `${action} successfully`
-    });
+        res.end();
+    }
 })));
 router.post('/stu', avatar_config_1.default, applyEMW((req, res, next) => __awaiter(this, void 0, void 0, function* () {
     let uBody = req.body;

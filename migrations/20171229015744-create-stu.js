@@ -17,7 +17,7 @@ module.exports = {
             gender: {
                 type: Sequelize.INTEGER
             },
-            push_token:{
+            token:{
                 type:Sequelize.STRING,
                 allowNull:true,
             },

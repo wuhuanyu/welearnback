@@ -3,7 +3,7 @@ let db=process.env.NODE_ENV==='test'? 'test':'dev';
 const sequelize = new Sequelize(db, 'root', 'why90951213', {
     host: 'localhost',
     dialect: 'mysql',
-    logging:process.env.NODE_ENV==='test',
+    // logging:console.log,
     // logging:process.env.NODE_ENV!=='production',
     pool: {
         max: 5,

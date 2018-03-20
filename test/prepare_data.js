@@ -28,6 +28,7 @@ const question_comment=['很简单嘛','这题我做过的，书上有','我觉�
 const bulletins = ['明天放假', '要考试了', '明天运动会，调休', '你们在此地不要动，我去买几斤橘子'];
 const drop = async () => {
     await mongoose.connect('mongodb://localhost:27017/welearn');
+    await models.Moment.drop();
     await models.Question.remove({});
     await models.Comment.remove({});
     await models.StuCourse.drop();
@@ -60,6 +61,7 @@ const sync = async () => {
 
     await models.MessageRecipient.sync();
     await models.QuestionDetail.sync();
+    await models.Moment.sync();
 
 };
 

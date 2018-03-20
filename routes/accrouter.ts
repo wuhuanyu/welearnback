@@ -20,26 +20,81 @@ import avatar_middleware from '../config/avatar.config';
 import * as express from 'express';
 import * as fs from 'fs-extra';
 import * as multer from 'multer';
-import { reset } from '_@types_continuation-local-storage@3.2.1@@types/continuation-local-storage';
+
+import * as _redis from 'redis';
+import * as bluebird from 'bluebird';
+bluebird.promisifyAll(_redis.RedisClient.prototype);
+bluebird.promisifyAll(_redis.Multi.prototype);
+const redis = _redis.createClient();
+const _idgen = require('uuid-token-generator');
+const idgen = new _idgen();
+
+
+// import {redis} from '../globals'; 
+
 /**
  * login
  * /acc
+ * TODO: test
  */
 router.post('', applyEMW(async (req: express.Request, res: express.Response, next: express.NextFunction) => {
     let uBody = req.body, name = uBody.name, password: string = md5(uBody.password), type: number = +uBody.type, action: string = uBody.action;
-    if (!action.toLowerCase() in ['login', 'logout'])
+    if (['login', 'logout'].indexOf(action) < 0)
         throw getError(404, "Illegal action");
+
+    let isLogin = action.toLowerCase() === 'login';
+
     let user = (type === ACC_T_Stu ? Stu : Teacher);
     let found = await user.findOne({ where: { name: name, password: password } });
     let updated;
+    // 无权限
     if (!found) throw getError(401, "Wrong credentials");
-    else updated = await found.update({
-        login: action === 'login'
-    });
-    res.status(200).json({
-        result: updated.id,
-        msg: `${action} successfully`
-    });
+
+    if (isLogin) {
+        //是否已经登录,若已经登录，更新TTL
+        let haveLogin = await redis.hgetallAsync('user:' + found.id);
+        console.log(JSON.stringify(haveLogin));
+        if (haveLogin) {
+            console.log("you have login");
+            await redis.hmsetAsync('user:' + found.id, 'login_time', new Date().getTime(), 'EX', 30*60);
+            await found.update({
+                login: isLogin,
+                token:haveLogin.token,
+            });
+            res.json({
+                token: haveLogin.token,
+                id:found.id,
+            }).end();
+        } else {
+            //没有登录,写入缓存
+            let token = idgen.generate();
+            await redis.hmsetAsync('user:' + found.id,
+                "username", found.name,
+                "password", found.password,
+                "login_time", new Date().getTime(),
+                "type", type,
+                "token", token,
+                "avatar", found.avatar,
+                'EX', 30 * 60);
+                await found.update({
+                    login:isLogin,
+                    token:token,
+                });
+            res.json({
+                token: token,
+                id:found.id,
+            }).end();
+        }
+    }
+    //登出
+    else {
+        await redis.delAsync('user:' + found.id)
+        await found.update({
+            login:action.toLowerCase()==='login',
+            token:'0',
+        });
+        res.end();
+    }
 }));
 
 /**

@@ -6,12 +6,12 @@
  */
 module.exports = function (code, msg) {
     switch (code) {
-        case 404:
-            msg = 'No such resource'; break;
-        case 500:
-            msg = 'Internal error'; break;
+    case 404:
+        msg =msg|| 'No such resource'; break;
+    case 500:
+        msg = msg||'Internal error'; break;
 
-        default: break;
+    default: break;
     }
     let error = new Error(msg);
     error.code = code;

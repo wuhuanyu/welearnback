@@ -2,5 +2,6 @@ node_modules/
 uploads/
 .idea/
 .vscode/
+playground/
 
 public/videos/

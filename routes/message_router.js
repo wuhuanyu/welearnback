@@ -6,62 +6,82 @@ const db = require('../mysqlcon');
 const getError = require('../utils/error');
 const OP=require('../mysqlcon').Op;
 const mqtt_client=require('../globals').mqtt_client;
+const _msg_mq=require('../globals').msg_queue;
 
+const msg_q_name='msg';
 router.post('', applyEMW(async (req, res, next) => {
 
     let auth = req.auth, msg_body = req.body.body, is_teacher = auth.type === constants.ACC_T_Tea;
     if(!msg_body) throw getError(400,'Wrong format message body,Read Api first');
     let course_id = req.url_params['course_id'];
-    let transaction;
-    try {
-        transaction = await db.transaction();
-        let saved_msg = await models.Message.build({
-            is_teacher_send: is_teacher,
-            teacher_id: (is_teacher ? auth.id : null),
-            student_id: (is_teacher ? null : auth.id),
-            send_time: new Date().getTime(),
-            course_id:course_id,
-            body: msg_body,
-        }).save();
-        let stu_recepient = (await models.StuCourse.findAll({ where: { cId: course_id }, attributes: ['sId'] }))
-            .map(stu => ({
-                message_id: saved_msg.id,
-                recipient_course_id: course_id,
-                recipient_stu_id: stu.sId,
-                recipient_teacher_id: null,
-                is_read: false,
-            }));
+    let msg_q=await _msg_mq;
+    let msg={};
 
-        let saved_stu_msg = await models.MessageRecipient.bulkCreate(stu_recepient);
+    msg.type=auth.type;
+    msg.course_id=course_id;
+    msg.body=msg_body;
+    msg.sender_id=auth.id;
+    msg.avatar=auth.avatar;
+    msg.sender_name=auth.name;
 
-        let tea_recipient = (await models.TeaCourse.findAll({ where: { cId: course_id }, attributes: ['tId'] }))
-            .map(
-                teacher => ({
-                    message_id: saved_msg.id,
-                    recipient_course_id: course_id,
-                    recipient_stu_id: null,
-                    recipient_teacher_id: teacher.tId,
-                    is_read: false,
-                })
-            );
+    await msg_q.sendToQueue(msg_q_name,Buffer.from(JSON.stringify(msg)));
+    res.end();
+    // res.json({
+    //     result:null,
+    //     msg:'Message send successfully',
+    // });
+    
 
-        let saved_tea_msg = await models.MessageRecipient.bulkCreate(tea_recipient);
-        transaction.commit();
-        //push service
-        saved_msg=saved_msg.toJSON();
-        saved_msg.sender_name=auth.name;
-        mqtt_client.publish(`${course_id}`,JSON.stringify({
-            type:constants.new_message,
-            payload:saved_msg,	
-        }));
-        res.json({
-            result: saved_msg.id,
-            msg: 'Message send successfully'
-        });
-    } catch (err) {
-        await transaction.rollback();
-        throw getError(500,err.message);
-    }
+    // let transaction;
+    // try {
+    //     transaction = await db.transaction();
+    //     let saved_msg = await models.Message.build({
+    //         is_teacher_send: is_teacher,
+    //         teacher_id: (is_teacher ? auth.id : null),
+    //         student_id: (is_teacher ? null : auth.id),
+    //         send_time: new Date().getTime(),
+    //         course_id:course_id,
+    //         body: msg_body,
+    //     }).save();
+    //     let stu_recepient = (await models.StuCourse.findAll({ where: { cId: course_id }, attributes: ['sId'] }))
+    //         .map(stu => ({
+    //             message_id: saved_msg.id,
+    //             recipient_course_id: course_id,
+    //             recipient_stu_id: stu.sId,
+    //             recipient_teacher_id: null,
+    //             is_read: false,
+    //         }));
+
+    //     let saved_stu_msg = await models.MessageRecipient.bulkCreate(stu_recepient);
+
+    //     let tea_recipient = (await models.TeaCourse.findAll({ where: { cId: course_id }, attributes: ['tId'] }))
+    //         .map(
+    //             teacher => ({
+    //                 message_id: saved_msg.id,
+    //                 recipient_course_id: course_id,
+    //                 recipient_stu_id: null,
+    //                 recipient_teacher_id: teacher.tId,
+    //                 is_read: false,
+    //             })
+    //         );
+
+    //     let saved_tea_msg = await models.MessageRecipient.bulkCreate(tea_recipient);
+    //     transaction.commit();
+    //     //push service
+    //     saved_msg=saved_msg.toJSON();
+    //     saved_msg.sender_name=auth.name;
+    //     mqtt_client.publish(`${course_id}`,JSON.stringify({
+    //         type:constants.new_message,
+    //         payload:saved_msg,	
+    //     }));
+    //     res.json({
+    //         result: saved_msg.id,
+    //         msg: 'Message send successfully'
+    //     });
+    // } catch (err) {
+    //     await transaction.rollback();
+    //     throw getError(500,err.message);
+    // }
 }));
 
 router.get('',applyEMW(async (req,res,next)=>{
