@@ -13,8 +13,8 @@ sender.stdout.on('data',(data)=>{
     console.log(`stdout data from sender ${data}`);
 });
 
-const worker=spawn('node',[__dirname+'/msgworker_test.js']);
+// const worker=spawn('node',[__dirname+'/msgworker_test.js']);
 
-worker.stdout.on('data',(data)=>{
-    console.log(`stdout data from worker ${data}`);
-});
+// worker.stdout.on('data',(data)=>{
+//     console.log(`stdout data from worker ${data}`);
+// });

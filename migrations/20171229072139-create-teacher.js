@@ -24,7 +24,7 @@ module.exports = {
                 allowNull:false,
                 defaultValue:'default_avatar.jpg',
             },
-            push_token:{
+            token:{
                 type:Sequelize.STRING,
                 allowNull:true,
             },

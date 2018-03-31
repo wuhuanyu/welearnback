@@ -41,8 +41,12 @@ process.on('exit', function (code) {
  */
 
 async function persist(msg) {
+    console.log('----------starting persist-------------');
+    console.log(msg);
     let { type, course_id, body, sender_id, avatar, sender_name } = msg;
-    let is_teacher = type === constants.ACC_T_Tea;
+    if(!(type&&course_id&&body&&sender_id&&sender_name))return null;
+
+    let is_teacher = (type === constants.ACC_T_Tea);
     let transaction;
     try {
         transaction = await db.transaction();
@@ -111,11 +115,11 @@ async function push(msg) {
 async function process_msg() {
     let msg_queue = await _msg_queue;
     await msg_queue.consume(queue, async (_) => {
-        let msg = JSON.parse(_.content.toString());
-        let new_msg = await persist(msg);
+        let new_msg=await persist(JSON.parse(_.content.toString()));
         await push(new_msg);
+        msg_queue.ack(_);
     });
 }
 
-
-process_msg();
+console.log('msg worker started');
+process_msg();// 

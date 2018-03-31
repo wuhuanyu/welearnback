@@ -30,8 +30,11 @@ server.listen(port);
 server.on('error', onError);
 server.on('listening', onListening);
 
-
-
+const {spawn}=require('child_process');
+// const msg_worker=spawn(__dirname+'/../node_modules/.bin/nodemon',['--exec',__dirname+'/../node_modules/.bin/babel-node',__dirname+'/../workers/msgworkers/worker.js']);
+// msg_worker.on('data',(data)=>{
+//   console.log(data);
+// });
 /**
  * Normalize a port into a number, string, or false.
  */

@@ -10,8 +10,8 @@ const md5 = require('md5');
 const getRandomInt = (min, max) => Math.floor(Math.random() * (max - min)) + min;
 const getRandomBool = () => Math.random() > 0.5;
 const constants = require('../constants');
-const firstname = ['tony', '花'];
-const lastName = ['young', '诸葛', '端木'];
+const firstname = ['john', 'jetty'];
+const lastName = ['young', 'sun', 'wu'];
 const courses = ['高等数学', '软件工程', '数据库', '欧洲现代美术', '马哲',"拉丁语","大学体育","信号与系统","计算机网络"];
 const course_desc = '据台湾媒体报道，歌手信（苏见信）和女友Wei Wei相恋15年却没结婚。女方被曝有新的追求者，她与对方的暧昧短信被信发现后，信生气搬离爱巢。这是又有男艺人被戴了绿帽子？';
 const question_desc = ['脱口秀形式简单，一人拿着麦克在台上讲段子，逗大家笑，类似于单口喜剧或单口相声。随着信息时代的到来，能够坐在某某社喝着茶、听着段子已经是奢侈的事了，不是没钱买门票，而是没有时间。大家只能抽出碎片化时间，打开手机平板，权当消遣时光。而脱口秀形式活泼、利于传播，再加上《吐槽大会》这几个节目插上网络的翅膀，想不红都难。',
@@ -195,7 +195,7 @@ describe('prepare data', () => {
         it('should insert teachers', async () => {
             for (let lN of lastName) {
                 let saved = await models.Teacher.build({
-                    name: lN + '老师',
+                    name: lN + 'tea',
                     password: md5('pass'),
                     gender: getRandomBool() ? constants.MALE : constants.FEMALE,
                     avatar: 'avatar' + getRandomInt(1, 6) + '.jpg'

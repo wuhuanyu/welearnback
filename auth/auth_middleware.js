@@ -14,12 +14,11 @@ const Teacher = require('../models/models').Teacher;
 const Student = require('../models/models').Stu;
 const md5 = require('md5');
 const constants = require('../constants');
-const globals_1 = require("../globals");
-const checkAuth = (isTeacher, name, pass) => __awaiter(this, void 0, void 0, function* () {
-    let user = isTeacher ? Teacher : Student;
-    let found = yield user.findOne({ where: { name: name, password: md5(pass) } });
-    return found;
-});
+const _redis = require("redis");
+const bluebird = require("bluebird");
+bluebird.promisifyAll(_redis.RedisClient.prototype);
+bluebird.promisifyAll(_redis.Multi.prototype);
+const redis = _redis.createClient();
 module.exports.teacher_auth = applyEMW((req, res, next) => __awaiter(this, void 0, void 0, function* () {
     req.auth = {};
     let authorization = req.get('authorization');
@@ -29,17 +28,22 @@ module.exports.teacher_auth = applyEMW((req, res, next) => __awaiter(this, void 
     }
     else {
         let credentials = new Buffer(authorization.split(' ').pop(), 'base64').toString('ascii').split(':');
-        let found = yield globals_1.redis.hgetAsync(`user:${credentials[0]}`);
-        if (found) {
-            req.auth.id = found.id;
-            req.auth.name = found.name;
-            req.auth.password = found.password;
-            req.avatar = found.avatar;
-            req.type = constants.ACC_T_Tea;
-            next();
+        let type = +(credentials[0]), id = +(credentials[1]), token = credentials[2];
+        let found = yield redis.hgetAsync(`${type}:user:${id}`);
+        if (!found)
+            throw getErr(403, 'Access Denied');
+        else {
+            if (found.token !== token)
+                throw getErr(403, 'Access Denied');
+            else {
+                req.auth.id = id;
+                req.auth.name = found.name;
+                req.auth.password = found.password;
+                req.auth.type = type;
+                req.auth.avatar = found.avatar;
+                next();
+            }
         }
-        else
-            throw getErr(403, 'Access Denied (incorrect credentials)');
     }
 }));
 module.exports.student_auth = applyEMW((req, res, next) => __awaiter(this, void 0, void 0, function* () {
@@ -51,21 +55,27 @@ module.exports.student_auth = applyEMW((req, res, next) => __awaiter(this, void 
     }
     else {
         let credentials = new Buffer(authorization.split(' ').pop(), 'base64').toString('ascii').split(':');
-        let found = yield globals_1.redis.hgetAsync(`user:${credentials[0]}`);
-        if (found) {
-            req.auth.id = found.id;
-            req.auth.name = found.name;
-            req.auth.password = found.password;
-            req.auth.avatar = found.avatar;
-            req.auth.type = constants.ACC_T_Stu;
-            next();
+        let type = +(credentials[0]), id = +(credentials[1]), token = credentials[2];
+        let found = yield redis.hgetAsync(`${type}:user:${id}`);
+        if (!found)
+            throw getErr(403, 'Access Denied');
+        else {
+            if (found.token !== token)
+                throw getErr(403, 'Access Denied');
+            else {
+                req.auth.id = id;
+                req.auth.name = found.name;
+                req.auth.password = found.password;
+                req.auth.type = type;
+                req.auth.avatar = found.avatar;
+                next();
+            }
         }
-        else
-            throw getErr(403, 'Access Denied (incorrect credentials)');
     }
 }));
 module.exports.common_auth = applyEMW((req, res, next) => __awaiter(this, void 0, void 0, function* () {
     req.auth = {};
+    console.log('common auth');
     let authorization = req.get('authorization');
     if (!authorization) {
         res.set('WWW-Authenticate', 'Basic realm="Authorization Required"');
@@ -73,16 +83,23 @@ module.exports.common_auth = applyEMW((req, res, next) => __awaiter(this, void 0
     }
     else {
         let credentials = new Buffer(authorization.split(' ').pop(), 'base64').toString('ascii').split(':');
-        let found = yield globals_1.redis.hgetAsync(`user:${credentials[0]}:${credentials[1]}`);
-        if (found) {
-            req.auth.id = credentials[0],
-                req.auth.name = found.name;
-            req.auth.password = found.password;
-            req.auth.type = +(found.type);
-            req.auth.avatar = found.avatar;
-            next();
+        let type = +(credentials[0]), id = +(credentials[1]), token = credentials[2];
+        let found = yield redis.hgetallAsync(`${type}:user:${id}`);
+        if (!found)
+            throw getErr(403, 'Access Denied');
+        else {
+            if (found.token !== token)
+                throw getErr(403, 'Access Denied');
+            else {
+                console.log(found);
+                console.log('common auth found ');
+                req.auth.id = id;
+                req.auth.name = found.username;
+                req.auth.password = found.password;
+                req.auth.type = type;
+                req.auth.avatar = found.avatar;
+                next();
+            }
         }
-        else
-            throw getErr(403, 'Access Denied (incorrect credentials)');
     }
 }));

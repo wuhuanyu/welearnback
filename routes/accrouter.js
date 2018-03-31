@@ -45,11 +45,10 @@ router.post('', applyEMW((req, res, next) => __awaiter(this, void 0, void 0, fun
     if (!found)
         throw getError(401, "Wrong credentials");
     if (isLogin) {
-        let haveLogin = yield redis.hgetallAsync('user:' + found.id);
-        console.log(JSON.stringify(haveLogin));
+        let haveLogin = yield redis.hgetallAsync(type + ':user:' + found.id);
         if (haveLogin) {
-            console.log("you have login");
-            yield redis.hmsetAsync('user:' + found.id, 'login_time', new Date().getTime(), 'EX', 30 * 60);
+            yield redis.hmsetAsync(type + ':user:' + found.id, 'login_time', new Date().getTime());
+            yield redis.expireAsync(`${type}:user:${found.id}`, 60 * 60);
             yield found.update({
                 login: isLogin,
                 token: haveLogin.token,
@@ -61,11 +60,12 @@ router.post('', applyEMW((req, res, next) => __awaiter(this, void 0, void 0, fun
         }
         else {
             let token = idgen.generate();
-            yield redis.hmsetAsync('user:' + found.id, "username", found.name, "password", found.password, "login_time", new Date().getTime(), "type", type, "token", token, "avatar", found.avatar, 'EX', 30 * 60);
+            yield redis.hmsetAsync(type + ':user:' + found.id, "username", found.name, "password", found.password, "login_time", new Date().getTime(), "type", type, "token", token, "avatar", found.avatar);
             yield found.update({
                 login: isLogin,
                 token: token,
             });
+            yield redis.expireAsync(`${type}:user:${found.id}`, 60 * 60);
             res.json({
                 token: token,
                 id: found.id,
@@ -73,7 +73,7 @@ router.post('', applyEMW((req, res, next) => __awaiter(this, void 0, void 0, fun
         }
     }
     else {
-        yield redis.delAsync('user:' + found.id);
+        yield redis.delAsync(type + ':user:' + found.id);
         yield found.update({
             login: action.toLowerCase() === 'login',
             token: '0',

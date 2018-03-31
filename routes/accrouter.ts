@@ -52,11 +52,12 @@ router.post('', applyEMW(async (req: express.Request, res: express.Response, nex
 
     if (isLogin) {
         //是否已经登录,若已经登录，更新TTL
-        let haveLogin = await redis.hgetallAsync('user:' + found.id);
-        console.log(JSON.stringify(haveLogin));
+        let haveLogin = await redis.hgetallAsync(type+':user:' + found.id);
+
         if (haveLogin) {
-            console.log("you have login");
-            await redis.hmsetAsync('user:' + found.id, 'login_time', new Date().getTime(), 'EX', 30*60);
+
+            await redis.hmsetAsync(type+':user:' + found.id, 'login_time', new Date().getTime());
+            await redis.expireAsync(`${type}:user:${found.id}`,60*60);
             await found.update({
                 login: isLogin,
                 token:haveLogin.token,
@@ -68,18 +69,19 @@ router.post('', applyEMW(async (req: express.Request, res: express.Response, nex
         } else {
             //没有登录,写入缓存
             let token = idgen.generate();
-            await redis.hmsetAsync('user:' + found.id,
+            await redis.hmsetAsync(type+':user:' + found.id,
                 "username", found.name,
                 "password", found.password,
                 "login_time", new Date().getTime(),
                 "type", type,
                 "token", token,
                 "avatar", found.avatar,
-                'EX', 30 * 60);
+                );
                 await found.update({
                     login:isLogin,
                     token:token,
                 });
+               await redis.expireAsync(`${type}:user:${found.id}`,60*60);
             res.json({
                 token: token,
                 id:found.id,
@@ -88,7 +90,7 @@ router.post('', applyEMW(async (req: express.Request, res: express.Response, nex
     }
     //登出
     else {
-        await redis.delAsync('user:' + found.id)
+        await redis.delAsync(type+':user:' + found.id)
         await found.update({
             login:action.toLowerCase()==='login',
             token:'0',
