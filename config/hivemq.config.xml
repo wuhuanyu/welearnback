@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+<hivemq xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="hivemq-config.xsd">
+    
+    <listeners>
+        <tcp-listener>
+            <port>1883</port>
+            <bind-address>0.0.0.0</bind-address>
+        </tcp-listener>
+        <websocket-listener>
+          <port>9001</port>
+          <bind-address>0.0.0.0</bind-address>
+          <path>/mqtt</path>
+          <subprotocols>
+              <subprotocol>mqttv3.1</subprotocol>
+              <subprotocol>mqtt</subprotocol>
+          </subprotocols>
+      </websocket-listener>
+    </listeners>
+</hivemq>

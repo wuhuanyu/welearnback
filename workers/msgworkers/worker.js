@@ -121,5 +121,4 @@ async function process_msg() {
     });
 }
 
-console.log('msg worker started');
-process_msg();// 
+process_msg();
