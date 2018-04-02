@@ -36,6 +36,7 @@ const _idgen = require('uuid-token-generator');
 const idgen = new _idgen();
 router.post('', applyEMW((req, res, next) => __awaiter(this, void 0, void 0, function* () {
     let uBody = req.body, name = uBody.name, password = md5(uBody.password), type = +uBody.type, action = uBody.action;
+    console.log(uBody);
     if (['login', 'logout'].indexOf(action) < 0)
         throw getError(404, "Illegal action");
     let isLogin = action.toLowerCase() === 'login';
@@ -48,7 +49,7 @@ router.post('', applyEMW((req, res, next) => __awaiter(this, void 0, void 0, fun
         let haveLogin = yield redis.hgetallAsync(type + ':user:' + found.id);
         if (haveLogin) {
             yield redis.hmsetAsync(type + ':user:' + found.id, 'login_time', new Date().getTime());
-            yield redis.expireAsync(`${type}:user:${found.id}`, 60 * 60);
+            yield redis.expireAsync(`${type}:user:${found.id}`, 30 * 60);
             yield found.update({
                 login: isLogin,
                 token: haveLogin.token,
@@ -65,7 +66,7 @@ router.post('', applyEMW((req, res, next) => __awaiter(this, void 0, void 0, fun
                 login: isLogin,
                 token: token,
             });
-            yield redis.expireAsync(`${type}:user:${found.id}`, 60 * 60);
+            yield redis.expireAsync(`${type}:user:${found.id}`, 30 * 60);
             res.json({
                 token: token,
                 id: found.id,
@@ -73,6 +74,7 @@ router.post('', applyEMW((req, res, next) => __awaiter(this, void 0, void 0, fun
         }
     }
     else {
+        console.log('logout');
         yield redis.delAsync(type + ':user:' + found.id);
         yield found.update({
             login: action.toLowerCase() === 'login',

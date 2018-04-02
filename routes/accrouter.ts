@@ -39,6 +39,7 @@ const idgen = new _idgen();
  */
 router.post('', applyEMW(async (req: express.Request, res: express.Response, next: express.NextFunction) => {
     let uBody = req.body, name = uBody.name, password: string = md5(uBody.password), type: number = +uBody.type, action: string = uBody.action;
+    console.log(uBody);
     if (['login', 'logout'].indexOf(action) < 0)
         throw getError(404, "Illegal action");
 
@@ -57,7 +58,7 @@ router.post('', applyEMW(async (req: express.Request, res: express.Response, nex
         if (haveLogin) {
 
             await redis.hmsetAsync(type+':user:' + found.id, 'login_time', new Date().getTime());
-            await redis.expireAsync(`${type}:user:${found.id}`,60*60);
+            await redis.expireAsync(`${type}:user:${found.id}`,30*60);
             await found.update({
                 login: isLogin,
                 token:haveLogin.token,
@@ -81,7 +82,7 @@ router.post('', applyEMW(async (req: express.Request, res: express.Response, nex
                     login:isLogin,
                     token:token,
                 });
-               await redis.expireAsync(`${type}:user:${found.id}`,60*60);
+               await redis.expireAsync(`${type}:user:${found.id}`,30*60);
             res.json({
                 token: token,
                 id:found.id,
@@ -90,6 +91,7 @@ router.post('', applyEMW(async (req: express.Request, res: express.Response, nex
     }
     //登出
     else {
+        console.log('logout');
         await redis.delAsync(type+':user:' + found.id)
         await found.update({
             login:action.toLowerCase()==='login',
