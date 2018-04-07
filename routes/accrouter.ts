@@ -25,6 +25,7 @@ import * as _redis from 'redis';
 import * as bluebird from 'bluebird';
 bluebird.promisifyAll(_redis.RedisClient.prototype);
 bluebird.promisifyAll(_redis.Multi.prototype);
+
 const redis = _redis.createClient();
 const _idgen = require('uuid-token-generator');
 const idgen = new _idgen();
@@ -104,21 +105,22 @@ router.post('', applyEMW(async (req: express.Request, res: express.Response, nex
 /**
  * student signup
  */
-router.post('/stu', avatar_middleware, applyEMW(async (req: express.Request, res: express.Response, next: express.NextFunction) => {
+router.post('/stu', applyEMW(async (req: express.Request, res: express.Response, next: express.NextFunction) => {
     let uBody = req.body;
-    let keys = Object.keys(uBody); let file: Express.Multer.File = req.file;
+    let keys = Object.keys(uBody); 
+    // let file: Express.Multer.File = req.file;
     //check fields must have name,password,gender
     if (Stu.checkedFields.every(f => keys.indexOf(f) > -1)) {
         let n = uBody.name, p = uBody.password, g = uBody.gender;//assume gender is a number,uncheck
         let stuFind = await Stu.findOne({ where: { name: n } });
         if (stuFind) {
-            if (file != null) {
-                try {
-                    await fs.unlink(file.destination + '/' + file.filename);
-                } catch (e) {
+            // if (file != null) {
+            //     try {
+            //         await fs.unlink(file.destination + '/' + file.filename);
+            //     } catch (e) {
 
-                }
-            }
+            //     }
+            // }
             throw getError(400, "Name exsits already");
         }
         else {
@@ -126,7 +128,7 @@ router.post('/stu', avatar_middleware, applyEMW(async (req: express.Request, res
                 name: n,
                 password: md5(p),
                 gender: +g,
-                avatar: file.filename,
+                // avatar: file.filename,
             }).save();
             res.json({
                 msg: 'Sign up ok',

@@ -26,7 +26,6 @@ const TAG = "[AccRouter]: ";
 const TeaCourse = require('../models/models').TeaCourse;
 const stu_auth = require('../auth/auth_middleware').student_auth;
 const avatar_config_1 = require("../config/avatar.config");
-const fs = require("fs-extra");
 const _redis = require("redis");
 const bluebird = require("bluebird");
 bluebird.promisifyAll(_redis.RedisClient.prototype);
@@ -83,21 +82,13 @@ router.post('', applyEMW((req, res, next) => __awaiter(this, void 0, void 0, fun
         res.end();
     }
 })));
-router.post('/stu', avatar_config_1.default, applyEMW((req, res, next) => __awaiter(this, void 0, void 0, function* () {
+router.post('/stu', applyEMW((req, res, next) => __awaiter(this, void 0, void 0, function* () {
     let uBody = req.body;
     let keys = Object.keys(uBody);
-    let file = req.file;
     if (Stu.checkedFields.every(f => keys.indexOf(f) > -1)) {
         let n = uBody.name, p = uBody.password, g = uBody.gender;
         let stuFind = yield Stu.findOne({ where: { name: n } });
         if (stuFind) {
-            if (file != null) {
-                try {
-                    yield fs.unlink(file.destination + '/' + file.filename);
-                }
-                catch (e) {
-                }
-            }
             throw getError(400, "Name exsits already");
         }
         else {
@@ -105,7 +96,6 @@ router.post('/stu', avatar_config_1.default, applyEMW((req, res, next) => __awai
                 name: n,
                 password: md5(p),
                 gender: +g,
-                avatar: file.filename,
             }).save();
             res.json({
                 msg: 'Sign up ok',

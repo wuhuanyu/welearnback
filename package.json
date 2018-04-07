@@ -4,7 +4,8 @@
   "private": true,
   "scripts": {
     "start": "./node_modules/.bin/nodemon --exec ./node_modules/.bin/babel-node ./bin/www",
-    "push": " ./node_modules/.bin/mosca -v ./node_modules/.bin/pino",
+    "message": "./node_modules/.bin/nodemon --exec ./node_modules/.bin/babel-node ./workers/msgworkers/worker.js",
+    "acc":"./node_modules/.bin/nodemon --exec ./node_modules/.bin/babel-node ./workers/accworker.js",
     "restart": "./init.sh",
     "test": "./node_mpm odules/.bin/mocha --compilers js:babel-core/register ./test/**/*.js --exit",
     "prepare": "./node_modules/.bin/mocha --compilers js:babel-core/register ./test/prepare_data.js --exit"
