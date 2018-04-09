@@ -16,6 +16,7 @@ function monitorAcc() {
         let client = Redis.createClient();
         client.subscribe('__keyevent@0__:expired');
         client.on('message', (channel, message) => __awaiter(this, void 0, void 0, function* () {
+            console.log("there is a key expired");
             let key = message.toString();
             try {
                 let info = key.split(":");

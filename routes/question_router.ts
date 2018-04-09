@@ -1,13 +1,4 @@
-"use strict";
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
-Object.defineProperty(exports, "__esModule", { value: true });
+import * as express from 'express';
 const router = require('express').Router();
 const models = require('../models/models');
 const TAG = '[Question router]: ';
@@ -23,9 +14,14 @@ const getError = require('../utils/error');
 const applyErrMiddleware = require('../utils/async_middleware');
 const findByFieldFactory = require('../utils/commonquery');
 const _globals = require('../globals');
-const getImageNames = (options) => __awaiter(this, void 0, void 0, function* () {
+/**
+ * 
+ * @param {Object} options 
+ */
+const getImageNames = async (options) => {
     let { forT, fId } = options;
-    let images = yield models._File.findAll({
+    // console.log(fId);
+    let images = await models._File.findAll({
         where: { forT: forT, fId: fId, fT: Constants.FT_IMAGE },
         attributes: ['name']
     });
@@ -34,26 +30,36 @@ const getImageNames = (options) => __awaiter(this, void 0, void 0, function* () 
         imageNames.push(im.name);
     }
     return imageNames;
-});
-router.post('', teacher_auth, defaultConfig, applyErrMiddleware((req, res, next) => __awaiter(this, void 0, void 0, function* () {
+};
+/** 
+ * authentication assumed 
+ * req.auth.{id,name,password}
+ * post question of a certain course
+ * /23/question
+ */
+router.post('', teacher_auth, defaultConfig, applyErrMiddleware(async (req:express.Request, res:express.Response, next:express.NextFunction) => {
     let b = req.body, cid = req.url_params.course_id;
     let auth = req.auth;
     let files = (req.files && req.files['upload']) || [];
+
     let images = files.filter(f => isImage(f.originalname)).map(image => image.originalname);
-    let _files = files.filter(f => !isImage(f.originalname)).map(f => f.original_name);
+    let _files=files.filter(f=>!isImage(f.originalname)).map(f=>f.original_name);
+
     if (['type', 'body'].every(f => Object.keys(b).indexOf(f) > -1)) {
-        let savedQ = yield new models.Question({
+        let savedQ = await new models.Question({
             type: b.type,
             cId: cid,
             tId: req.auth.id,
             body: b.body,
             time: new Date().getTime(),
             images: images,
-            files: _files,
+            files:_files,
         }).save();
+
+        //save file
         for (let file of files) {
             let { originalname, size, filename, path } = file;
-            let newF = yield models._File.build({
+            let newF = await models._File.build({
                 aT: Constants.ACC_T_Tea,
                 aId: auth.id,
                 forT: Constants.ForT_Question,
@@ -63,27 +69,37 @@ router.post('', teacher_auth, defaultConfig, applyErrMiddleware((req, res, next)
                 name: filename,
                 dir: path,
             }).save();
+
         }
+        // _globals.mqtt_client.publish(`${cid}`,JSON.stringify({
+        //     type:constants.new_question,
+        //
+        // }));
         res.status(200).json({
             result: savedQ._id,
             msg: 'Question Upload Successfully'
         });
-    }
-    else {
+
+    } else {
         next(getError(404, 'Wrong Question Format'));
     }
-})));
-router.get('', applyErrMiddleware((req, res, next) => __awaiter(this, void 0, void 0, function* () {
+}));
+
+/**
+ * /12/question
+ * get all questions of 12 course
+ */
+router.get('', applyErrMiddleware(async (req, res, next) => {
     let cId = req.url_params.course_id;
     let start = req.query.start || 0;
     let limit = req.query.limit || 3;
-    let questions = yield models.Question.find({ cId: cId }).where('_id').gt(start - 1).limit(limit).sort('-time');
-    if (questions.length === 0)
-        throw getError(404, 'No such resource');
+
+    let questions = await models.Question.find({ cId: cId }).where('_id').gt(start - 1).limit(limit).sort('-time');
+    if (questions.length === 0) throw getError(404, 'No such resource');
     let quesitonsWithImage = [];
     let next_start = 0;
     for (let [idx, q] of questions.entries()) {
-        let images = yield getImageNames({ fId: q._id, forT: Constants.ForT_Question });
+        let images = await getImageNames({ fId: q._id, forT: Constants.ForT_Question });
         let obj = q.toObject();
         obj.images = images;
         quesitonsWithImage.push(obj);
@@ -95,16 +111,23 @@ router.get('', applyErrMiddleware((req, res, next) => __awaiter(this, void 0, vo
         count: questions.length,
         next: next_start,
         data: quesitonsWithImage
+
     });
-})));
-router.post(/^\/(\w+)\/ans$/, teacher_auth, defaultConfig, applyErrMiddleware((req, res, next) => __awaiter(this, void 0, void 0, function* () {
+}));
+
+
+/**
+ * post ans to 
+ * /course/:courseId/:questionId/ans
+ */
+router.post(/^\/(\w+)\/ans$/, teacher_auth, defaultConfig, applyErrMiddleware(async (req, res, next) => {
     let auth = req.auth;
     let courseId = req.url_params.course_id, questionId = req.params[0];
     let files = (req.files && req.files['upload']) || [];
     let imageNames = files.map(f => f.originalname).filter(fileName => isImage(fileName));
     let fileNames = files.map(f => f.originalname).filter(fileName => !isImage(fileName));
     let ans_id = md5(new Date().getTime() + req.body.body);
-    let updated = yield models.Question.update({ _id: questionId }, {
+    let updated = await models.Question.update({ _id: questionId }, {
         $push: {
             anss: {
                 _id: ans_id,
@@ -127,29 +150,46 @@ router.post(/^\/(\w+)\/ans$/, teacher_auth, defaultConfig, applyErrMiddleware((r
             name: filename,
             dir: path,
         });
-        let savedF = yield newF.save();
+        let savedF = await newF.save();
         savedFiles.push(savedF.id);
     }
     res.json({
         result: updated,
         msg: 'Answer upload successfully',
     });
-})));
-router.post(/^\/(\w+)\/comment$/, defaultConfig, common_auth, applyErrMiddleware((req, res, next) => __awaiter(this, void 0, void 0, function* () {
+    // res.end();
+
+}));
+
+
+/**
+ * 
+ *  /12/12/comment
+ * must specify user type 
+ * tested
+ */
+router.post(/^\/(\w+)\/comment$/, defaultConfig, common_auth, applyErrMiddleware(async (req, res, next) => {
+    // console.log('-------post comment to question--------');
     let c = req.url_params.course_id, q = req.params[0], author_type = req.auth.type;
     let body = req.body;
     let newC = new models.Comment({
         forT: constants.ForT_Question,
         forId: q,
+        //must have type
         aT: author_type,
         aId: req.auth.id,
         body: body.body,
         time: new Date().getTime()
     });
-    let savedC = yield newC.save();
+    let savedC = await newC.save();
+
+    /**
+         * upload file processing
+         */
     let files = (req.files && req.files['upload']) || [];
     let savedFiles = [];
     if (files.length !== 0) {
+        //there is file
         for (let file of files) {
             let { originalname, size, filename, path } = file;
             let newF = models._File.build({
@@ -162,9 +202,10 @@ router.post(/^\/(\w+)\/comment$/, defaultConfig, common_auth, applyErrMiddleware
                 name: filename,
                 dir: path
             });
-            savedFiles.push(yield newF.save());
+            savedFiles.push(await newF.save());
         }
     }
+    //if there is file,
     if (files.length !== 0) {
         if (files.length === savedFiles.length) {
             res.status(200).json({
@@ -172,33 +213,46 @@ router.post(/^\/(\w+)\/comment$/, defaultConfig, common_auth, applyErrMiddleware
                 result: savedC.id,
             });
         }
-        else
-            throw getError(500, 'Something happens when storing file');
+        else throw getError(500, 'Something happens when storing file');
     }
     else
         res.status(200).json({
             msg: 'Comment Successfully!',
             result: savedC._id,
         });
-})));
-router.get(/\/(\w+)\/comment$/, applyErrMiddleware((req, res, next) => __awaiter(this, void 0, void 0, function* () {
+
+}
+    // }
+)
+);
+
+/**
+ * /course/1/question/1/comment
+ * get all comments of a question of a course
+ * tested
+ */
+router.get(/\/(\w+)\/comment$/, applyErrMiddleware(async (req, res, next) => {
+
     let c = req.url_params.course_id, q = req.params[0];
     console.log(TAG, '-----------question router--------------');
     let start = +req.query.start || 0, limit = +req.query.limit || 5;
-    let comments = yield models.Comment.find({ forT: constants.ForT_Question, forId: q }).where('_id').gt(start - 1).limit(limit).sort('-time');
-    if (comments.length === 0)
-        throw getError(400, 'No such resource');
+
+    // let comments = await findByFieldFactory('comment', ['forT', 'forId'], { time: 1 })([constants.ForT_Question, q]);
+    let comments = await models.Comment.find({ forT: constants.ForT_Question, forId: q }).where('_id').gt(start - 1).limit(limit).sort('-time');
+    if (comments.length === 0) throw getError(400, 'No such resource');
     let next_start = 0;
     let datas = [];
     for (let [idx, comment] of comments.entries()) {
         let aT = comment.aT;
         let aId = comment.aId;
         let user = (aT === constants.ACC_T_Tea ? models.Teacher : models.Stu);
-        let userFound = yield user.findById(aId);
+        let userFound = await user.findById(aId);
         let data = comment.toObject();
-        let images = yield getImageNames({ forT: constants.ForT_Comment, fId: comment._id });
+        // data._id=comment._id;
+        // console.log(data);
+        let images = await getImageNames({ forT: constants.ForT_Comment, fId: comment._id });
         data.author = userFound.name;
-        data.avatar = userFound.avatar;
+        data.avatar=userFound.avatar;
         data.images = images;
         datas.push(data);
         if (idx === 0) {
@@ -210,5 +264,8 @@ router.get(/\/(\w+)\/comment$/, applyErrMiddleware((req, res, next) => __awaiter
         data: datas,
         next: next_start,
     });
-})));
-module.exports = router;
+}));
+
+
+
+module.exports=router;

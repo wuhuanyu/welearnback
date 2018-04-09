@@ -7,8 +7,9 @@ import * as models from '../models/models';
 async function monitorAcc() {
     let client = Redis.createClient();
     client.subscribe('__keyevent@0__:expired');
-    client.on('message', async (channel, message) => {
 
+    client.on('message', async (channel, message) => {
+        console.log("there is a key expired");
         let key: string = message.toString();
         try {
             // type:user:id
@@ -31,7 +32,7 @@ async function monitorAcc() {
             };
 
         } catch (e) {
-
+            
         }
     });
 }
