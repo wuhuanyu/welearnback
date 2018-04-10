@@ -70,7 +70,7 @@ router.post('', teacher_auth, defaultConfig, applyErrMiddleware((req, res, next)
         });
     }
     else {
-        next(getError(404, 'Wrong Question Format'));
+        next(getError(401, 'Wrong Question Format'));
     }
 })));
 router.get('', applyErrMiddleware((req, res, next) => __awaiter(this, void 0, void 0, function* () {

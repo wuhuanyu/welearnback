@@ -79,7 +79,9 @@ router.post('', applyEMW((req, res, next) => __awaiter(this, void 0, void 0, fun
             login: action.toLowerCase() === 'login',
             token: '0',
         });
-        res.end();
+        res.json({
+            id: found.id
+        }).end();
     }
 })));
 router.post('/stu', applyEMW((req, res, next) => __awaiter(this, void 0, void 0, function* () {

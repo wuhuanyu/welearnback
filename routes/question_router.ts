@@ -81,7 +81,7 @@ router.post('', teacher_auth, defaultConfig, applyErrMiddleware(async (req:expre
         });
 
     } else {
-        next(getError(404, 'Wrong Question Format'));
+        next(getError(401, 'Wrong Question Format'));
     }
 }));
 

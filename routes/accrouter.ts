@@ -98,7 +98,9 @@ router.post('', applyEMW(async (req: express.Request, res: express.Response, nex
             login:action.toLowerCase()==='login',
             token:'0',
         });
-        res.end();
+        res.json({
+            id:found.id
+        }).end();
     }
 }));
 
