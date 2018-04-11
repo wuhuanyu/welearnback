@@ -28,7 +28,7 @@ const uuid = require('uuid/v1');
 const md5=require('md5');
 const _globals=require('../globals');
 import * as express from 'express';
-
+import LiveRouter from './live_router';
 const push=require('../globals').mqtt_client;
 
 
@@ -48,8 +48,8 @@ const courseToTeacher = async (options) => {
 };
 
 /**
- * 
- * @param {Object} options 
+ *
+ * @param {Object} options
  */
 const getImageNames = async (options) => {
     let { forT, fId } = options;
@@ -70,7 +70,7 @@ const getImageNames = async (options) => {
 
 /**
  * tested
- * 
+ *
  */
 router.post('', teacher_auth, defaultConfig, (req, res, next) => {
     let b = req.body;
@@ -200,42 +200,42 @@ router.get(/^\/([0-9]+)\/comment$/,applyErrMiddleware(async (req,res,next)=>{
         }
     }
 
-        res.json({
-            count:datas.length,
-            next:next_start,
-            data:datas,
-        });
+    res.json({
+        count:datas.length,
+        next:next_start,
+        data:datas,
+    });
 }));
 
 /**
  *  TODO:add image support
  */
 
- router.post(/^\/([0-9]+)\/comment$/,common_auth,applyErrMiddleware(async (req,res,next)=>{
-     let auth=req.auth,is_teacher=auth.type===constants.ACC_T_Tea;
-     let course_id=parseInt(req.params[0],10);
-     let time=new Date().getTime();
-     let saved=  await new models.Comment({
-         forT:constants.ForT_Course,
-         forId:course_id,
-         aT:auth.type,
-         aId:auth.id,
-         time:time,
-         body:req.body.body,
-     }).save();
-     if(saved){
-          let data=saved.toObject();
-          data.course_name=(await models.Course.findOne({_id:course_id})).name;
-         _globals.mqtt_client.publish(`${course_id}`,JSON.stringify({
-             type:constants.new_comment_course,
-             payload:data,
-         }))
-         res.json({
-             result:saved.id,
-             msg:'Comment successfully'
-         });
-     };
- }));
+router.post(/^\/([0-9]+)\/comment$/,common_auth,applyErrMiddleware(async (req,res,next)=>{
+    let auth=req.auth,is_teacher=auth.type===constants.ACC_T_Tea;
+    let course_id=parseInt(req.params[0],10);
+    let time=new Date().getTime();
+    let saved=  await new models.Comment({
+        forT:constants.ForT_Course,
+        forId:course_id,
+        aT:auth.type,
+        aId:auth.id,
+        time:time,
+        body:req.body.body,
+    }).save();
+    if(saved){
+        let data=saved.toObject();
+        data.course_name=(await models.Course.findOne({_id:course_id})).name;
+        _globals.mqtt_client.publish(`${course_id}`,JSON.stringify({
+            type:constants.new_comment_course,
+            payload:data,
+        }))
+        res.json({
+            result:saved.id,
+            msg:'Comment successfully'
+        });
+    };
+}));
 
 
 
@@ -276,17 +276,17 @@ router.use(/^\/([0-9]+)\/question/,(req,res,next)=>{
 },require('./question_router'));
 
 router.use(/^\/([0-9]+)\/bulletin$/,(req,res,next)=>{
-    req.url_params={
-        course_id:req.params[0],
-    }
-    next();
-},
-require('./bulletin_router'));
+        req.url_params={
+            course_id:req.params[0],
+        }
+        next();
+    },
+    require('./bulletin_router'));
 //TODO:check teacher or student selected the course;
 router.use(/^\/([0-9]+)\/message$/,common_auth,(req,res,next)=>{
     next();
 },(req,res,next)=>{
-   req.url_params={
+    req.url_params={
         course_id:req.params[0],
     };
 
@@ -307,6 +307,13 @@ router.use(/^\/([0-9]+)\/video/,(req:express.Request,res:express.Response,next:e
     next();
 },require('./video_router'));
 
+
+
+router.use(/^\/([0-9]+)\/live/,common_auth,(req:express.Request,res:express.Response,next:express.NextFunction)=>{
+    req.url_params=req.url_params||{};
+    req.url_params.course_id=req.params[0];
+    next();
+},LiveRouter);
 
 export default router;
 export {getImageNames};

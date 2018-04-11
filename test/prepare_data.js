@@ -26,6 +26,7 @@ const question_comment=['很简单嘛','这题我做过的，书上有','我觉�
 const bulletins = ['明天放假', '要考试了', '明天运动会，调休', '你们在此地不要动，我去买几斤橘子'];
 const drop = async () => {
     await mongoose.connect('mongodb://localhost:27017/welearn');
+    await models.Live.drop();
     await models.Moment.drop();
     await models.Question.remove({});
     await models.Comment.remove({});
@@ -60,6 +61,7 @@ const sync = async () => {
     await models.MessageRecipient.sync();
     await models.QuestionDetail.sync();
     await models.Moment.sync();
+    await models.Live.sync();
 
 };
 
@@ -110,7 +112,8 @@ describe('prepare data', () => {
                         anss: [{ body: ans, images: [ans_image1, ans_image2] }],
                         images: [question_image1, question_image2],
                         //TODO:add file
-                        time: new Date().getTime() - i * 24 * 60 * 60 * 1000,
+                        publish_time: new Date().getTime() - (i+1) * 24 * 60 * 60 * 1000,
+                        deadline:new Date().getTime()+i*24*60*60*1000,
                     }).save();
                     //insert question images
                     let question_file = { aT: 11, aId: 1, forT: constants.ForT_Question, fId: saved_q._id, fT: constants.FT_IMAGE };

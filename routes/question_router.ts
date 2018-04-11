@@ -45,7 +45,7 @@ router.post('', teacher_auth, defaultConfig, applyErrMiddleware(async (req:expre
     let images = files.filter(f => isImage(f.originalname)).map(image => image.originalname);
     let _files=files.filter(f=>!isImage(f.originalname)).map(f=>f.original_name);
 
-    if (['type', 'body'].every(f => Object.keys(b).indexOf(f) > -1)) {
+    if (['type', 'body','publish_time','deadline'].every(f => Object.keys(b).indexOf(f) > -1)) {
         let savedQ = await new models.Question({
             type: b.type,
             cId: cid,
@@ -54,6 +54,8 @@ router.post('', teacher_auth, defaultConfig, applyErrMiddleware(async (req:expre
             time: new Date().getTime(),
             images: images,
             files:_files,
+            dealine:b.deadline,
+            publish_time:b.publish_time
         }).save();
 
         //save file

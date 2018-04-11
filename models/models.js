@@ -1,4 +1,5 @@
-const db = require('../mysqlcon');
+
+const db=require('../mysqlcon');
 const Question = require('./question');
 const Comment = require('./comment');
 
@@ -39,6 +40,7 @@ module.exports = {
     QuestionDetail:db.import(__dirname+'/question_detail.js'),
     Video:db.import(__dirname+'/video.js'),
     Moment:db.import(__dirname+'/moment.js'),
+    Live:db.import(__dirname+'/live.js'),
 	
     // Message:require('./message'),
 };

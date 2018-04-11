@@ -32,6 +32,7 @@ const commont_auth = require('../auth/auth_middleware').common_auth;
 const uuid = require('uuid/v1');
 const md5 = require('md5');
 const _globals = require('../globals');
+const live_router_1 = require("./live_router");
 const push = require('../globals').mqtt_client;
 const getTeacherName = (options) => __awaiter(this, void 0, void 0, function* () {
     let { tId } = options;
@@ -255,4 +256,9 @@ router.use(/^\/([0-9]+)\/video/, (req, res, next) => {
     req.url_params.course_id = req.params[0];
     next();
 }, require('./video_router'));
+router.use(/^\/([0-9]+)\/live/, auth_middleware_1.common_auth, (req, res, next) => {
+    req.url_params = req.url_params || {};
+    req.url_params.course_id = req.params[0];
+    next();
+}, live_router_1.default);
 exports.default = router;

@@ -5,8 +5,9 @@
   "scripts": {
     "start": "./node_modules/.bin/nodemon --exec ./node_modules/.bin/babel-node ./bin/www",
     "message": "./node_modules/.bin/nodemon --exec ./node_modules/.bin/babel-node ./workers/msgworkers/worker.js",
-    "acc":"./node_modules/.bin/nodemon --exec ./node_modules/.bin/babel-node ./workers/accworker.js",
+    "acc": "./node_modules/.bin/nodemon --exec ./node_modules/.bin/babel-node ./workers/accworker.js",
     "restart": "./init.sh",
+    "babel-node":"./node_moduels/.bin/babel-node --presets=latest",
     "test": "./node_mpm odules/.bin/mocha --compilers js:babel-core/register ./test/**/*.js --exit",
     "prepare": "./node_modules/.bin/mocha --compilers js:babel-core/register ./test/prepare_data.js --exit"
   },
@@ -33,6 +34,7 @@
     "mqtt": "^2.15.1",
     "multer": "^1.3.0",
     "mysql2": "^1.5.1",
+    "node-media-server": "^1.2.7",
     "pino": "^4.10.3",
     "redis": "^2.8.0",
     "reflect-metadata": "^0.1.12",
@@ -45,11 +47,14 @@
   },
   "devDependencies": {
     "@types/bluebird": "^3.5.20",
+    "@types/body-parser": "^1.16.8",
     "@types/chai": "^4.1.2",
     "@types/chai-http": "^3.0.3",
+    "@types/cookie-parser": "^1.4.1",
     "@types/express": "^4.11.0",
     "@types/fs-extra": "^5.0.0",
     "@types/mongoose": "^5.0.1",
+    "@types/morgan": "^1.7.35",
     "@types/multer": "^1.3.6",
     "@types/node": "^9.4.0",
     "@types/redis": "^2.8.6",
@@ -57,6 +62,7 @@
     "babel-cli": "^6.26.0",
     "babel-core": "^6.26.0",
     "babel-preset-es2015": "^6.24.1",
+    "babel-preset-latest": "^6.24.1",
     "chai": "^4.1.2",
     "chai-as-promised": "^7.1.1",
     "chai-http": "^3.0.0",
@@ -65,9 +71,6 @@
     "fs-extra": "^5.0.0",
     "mocha": "^4.1.0",
     "morgan": "^1.9.0",
-    "nodemon": "^1.14.12",
-    "@types/body-parser": "^1.16.8",
-    "@types/cookie-parser": "^1.4.1",
-    "@types/morgan": "^1.7.35"
+    "nodemon": "^1.14.12"
   }
 }
