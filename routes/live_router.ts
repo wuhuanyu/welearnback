@@ -8,7 +8,9 @@ const md5 =require('md5');
 const livekey="private";
 const Models =require('../models/models');
 const getError=require('../utils/error');
-const mqtt=require('../gl')
+const mqtt=require('../globals').mqtt_client;
+import * as Constants from '../constants';
+
 LiveRouter.post('',ErrorMW(async (req:Express.Request,res:Express.Response,next:Express.NextFunction)=>{
     let course_id=req.url_params['course_id'];
     //can not have a reserved live already
@@ -37,7 +39,6 @@ LiveRouter.post('',ErrorMW(async (req:Express.Request,res:Express.Response,next:
      */
     let url=`/live/course${course_id}?sign=${expire}-${hash}`;
 
-
     let savedLive=await Live.build({
         course_id:course_id,
         teacher_id:auth.id,
@@ -45,9 +46,25 @@ LiveRouter.post('',ErrorMW(async (req:Express.Request,res:Express.Response,next:
         time:time,
         url:url,
     }).save();
-        res.json({
-            result:savedLive.id,
-        }).end();
+
+    let courseName=(await Models.Course.findOne({
+        where:{
+            id:course_id
+        },
+        attributes:['name'],
+    })).name;
+
+    savedLive=savedLive.toJSON();
+
+    savedLive.course_name=courseName;
+    mqtt.publish(`${course_id}`,JSON.parse({
+        type:Constants.NEW_LIVE_RESERVED,
+        payload:savedLive,
+    }));
+     res.json({
+        result:savedLive.id,
+    }).end();
+
 }));
 
 LiveRouter.get('',ErrorMW(async(req:Express.Request,res:Express.Response,next:Express.NextFunction)=>{
@@ -59,10 +76,13 @@ LiveRouter.get('',ErrorMW(async(req:Express.Request,res:Express.Response,next:Ex
     });
     if(lives.length===0)
         throw  getError(404,'No such resource');
+
     res.json({
         count:lives.length,
         data:lives,
     }).end();
+
+
 }));
 
 // LiveRouter.get('',ErrorMW(async(req:Express.Request,res:Express.Response,)))
@@ -79,12 +99,18 @@ LiveRouter.patch(/\/([0-9]+)$/,ErrorMW(async(req:Express.Request,res:Express.Res
         }
     });
     if(!live) throw getError(404);
-    console.log(req.body);
-    await live.update(req.body);
+    let updatedLive=await  live.update(req.body);
+    if(updatedLive.is_going){
+        mqtt.publish(`${course_id}`,JSON.stringify({
+            type:Constants.NEW_LIVE_STARTED,
+            payload:updatedLive,
+        }));
+    }
 
     res.json({
         result:live.id
     }).end();
+
 }));
 
 LiveRouter.delete(/\/([0-9]+)$/,ErrorMW(async(req:Express.Request,res:Express.Response,next:Express.NextFunction)=>{

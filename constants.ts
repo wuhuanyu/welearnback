@@ -44,6 +44,10 @@ export const new_comment_question=95;
 
 export const new_comment_question_by_teacher=94;
 
+export const NEW_LIVE_RESERVED=91;
+export const NEW_LIVE_STARTED=90;
+
+
 /**
  * /数学
  */

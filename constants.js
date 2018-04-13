@@ -19,5 +19,7 @@ exports.new_comment_course_by_teacher = 97;
 exports.new_question = 96;
 exports.new_comment_question = 95;
 exports.new_comment_question_by_teacher = 94;
+exports.NEW_LIVE_RESERVED = 91;
+exports.NEW_LIVE_STARTED = 90;
 exports.new_message = 50;
 exports.bulletin = 99;

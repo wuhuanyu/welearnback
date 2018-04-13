@@ -18,7 +18,8 @@ const md5 = require('md5');
 const livekey = "private";
 const Models = require('../models/models');
 const getError = require('../utils/error');
-const mqtt = require('../gl');
+const mqtt = require('../globals').mqtt_client;
+const Constants = require("../constants");
 LiveRouter.post('', ErrorMW((req, res, next) => __awaiter(this, void 0, void 0, function* () {
     let course_id = req.url_params['course_id'];
     let found = yield Live.findOne({
@@ -42,6 +43,18 @@ LiveRouter.post('', ErrorMW((req, res, next) => __awaiter(this, void 0, void 0, 
         time: time,
         url: url,
     }).save();
+    let courseName = (yield Models.Course.findOne({
+        where: {
+            id: course_id
+        },
+        attributes: ['name'],
+    })).name;
+    savedLive = savedLive.toJSON();
+    savedLive.course_name = courseName;
+    mqtt.publish(`${course_id}`, JSON.parse({
+        type: Constants.NEW_LIVE_RESERVED,
+        payload: savedLive,
+    }));
     res.json({
         result: savedLive.id,
     }).end();
@@ -71,8 +84,13 @@ LiveRouter.patch(/\/([0-9]+)$/, ErrorMW((req, res, next) => __awaiter(this, void
     });
     if (!live)
         throw getError(404);
-    console.log(req.body);
-    yield live.update(req.body);
+    let updatedLive = yield live.update(req.body);
+    if (updatedLive.is_going) {
+        mqtt.publish(`${course_id}`, JSON.stringify({
+            type: Constants.NEW_LIVE_STARTED,
+            payload: updatedLive,
+        }));
+    }
     res.json({
         result: live.id
     }).end();
