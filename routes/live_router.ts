@@ -8,8 +8,19 @@ const md5 =require('md5');
 const livekey="private";
 const Models =require('../models/models');
 const getError=require('../utils/error');
+const mqtt=require('../gl')
 LiveRouter.post('',ErrorMW(async (req:Express.Request,res:Express.Response,next:Express.NextFunction)=>{
     let course_id=req.url_params['course_id'];
+    //can not have a reserved live already
+    let found=await Live.findOne({
+        where:{
+            course_id:course_id,
+            finish:false,
+        }
+    });
+    if(found){
+        throw getError(401,"Already has a live reserved");
+    }
     //todo: check
     //time is milliseconds
     let {title,time}=req.body;
@@ -25,6 +36,7 @@ LiveRouter.post('',ErrorMW(async (req:Express.Request,res:Express.Response,next:
      * authentication stop here
      */
     let url=`/live/course${course_id}?sign=${expire}-${hash}`;
+
 
     let savedLive=await Live.build({
         course_id:course_id,
@@ -55,5 +67,41 @@ LiveRouter.get('',ErrorMW(async(req:Express.Request,res:Express.Response,next:Ex
 
 // LiveRouter.get('',ErrorMW(async(req:Express.Request,res:Express.Response,)))
 
+LiveRouter.patch(/\/([0-9]+)$/,ErrorMW(async(req:Express.Request,res:Express.Response,next:Express.NextFunction)=>{
+    let course_id=req.url_params['course_id'];
+    let live_id=+(req.params[0]);
+
+
+    let live=await Live.findOne({
+        where:{
+            id:live_id,
+            course_id:course_id
+        }
+    });
+    if(!live) throw getError(404);
+    console.log(req.body);
+    await live.update(req.body);
+
+    res.json({
+        result:live.id
+    }).end();
+}));
+
+LiveRouter.delete(/\/([0-9]+)$/,ErrorMW(async(req:Express.Request,res:Express.Response,next:Express.NextFunction)=>{
+    let course_id=req.url_params['course_id'];
+    let live_id=+(req.params[0]);
+    let found=await Live.findOne({
+        where:{
+            id:live_id,
+            course_id:course_id,
+        }
+    });
+    if(!found)
+        throw getError(404);
+    else{
+        await found.destory();
+        res.end();
+    }
+}));
 
 export default LiveRouter;

@@ -16,14 +16,14 @@ module.exports = {
                 },
                 allowNull:false,
             },
-            teacher_id: {
-                type: Sequelize.INTEGER,
-                references:{
-                    model:'teachers',
-                    key:'id',
-                },
-                allowNull:false,
-            },
+            // teacher_id: {
+            //     type: Sequelize.INTEGER,
+            //     references:{
+            //         model:'teachers',
+            //         key:'id',
+            //     },
+            //     allowNull:false,
+            // },
             title: {
                 type: Sequelize.STRING,
                 allowNull:false,
