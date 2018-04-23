@@ -3,5 +3,5 @@ uploads/
 .idea/
 .vscode/
 playground/
-
+.DS_Store
 public/videos/
