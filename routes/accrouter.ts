@@ -51,13 +51,10 @@ router.post('', applyEMW(async (req: express.Request, res: express.Response, nex
     let updated;
     // 无权限
     if (!found) throw getError(401, "Wrong credentials");
-
     if (isLogin) {
         //是否已经登录,若已经登录，更新TTL
         let haveLogin = await redis.hgetallAsync(type+':user:' + found.id);
-
         if (haveLogin) {
-
             await redis.hmsetAsync(type+':user:' + found.id, 'login_time', new Date().getTime());
             await redis.expireAsync(`${type}:user:${found.id}`,30*60);
             await found.update({
@@ -70,7 +67,9 @@ router.post('', applyEMW(async (req: express.Request, res: express.Response, nex
             }).end();
         } else {
             //没有登录,写入缓存
+            //生成随机token
             let token = idgen.generate();
+            //写入缓存
             await redis.hmsetAsync(type+':user:' + found.id,
                 "username", found.name,
                 "password", found.password,
@@ -79,11 +78,14 @@ router.post('', applyEMW(async (req: express.Request, res: express.Response, nex
                 "token", token,
                 "avatar", found.avatar,
                 );
+                //更新数据库
                 await found.update({
                     login:isLogin,
                     token:token,
                 });
+                //设置缓存时间
                await redis.expireAsync(`${type}:user:${found.id}`,30*60);
+               //返回相应，token，id
             res.json({
                 token: token,
                 id:found.id,

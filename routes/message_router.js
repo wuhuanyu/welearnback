@@ -10,21 +10,22 @@ const _msg_mq=require('../globals').msg_queue;
 
 const msg_q_name='msg';
 router.post('', applyEMW(async (req, res, next) => {
-
+    //鉴权中间件传入的账户信息
     let auth = req.auth, msg_body = req.body.body, is_teacher = auth.type === constants.ACC_T_Tea;
     if(!msg_body) throw getError(400,'Wrong format message body,Read Api first');
     let course_id = req.url_params['course_id'];
     let msg_q=await _msg_mq;
+    //打包message
     let msg={};
-
     msg.type=auth.type;
     msg.course_id=course_id;
     msg.body=msg_body;
     msg.sender_id=auth.id;
     msg.avatar=auth.avatar;
     msg.sender_name=auth.name;
-
+    //送入任务队列
     await msg_q.sendToQueue(msg_q_name,Buffer.from(JSON.stringify(msg)));
+    //返回成功结果
     res.end();
     // res.json({
     //     result:null,

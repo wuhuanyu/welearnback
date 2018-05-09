@@ -105,8 +105,11 @@ async function persist(msg) {
 
 
 async function push(msg) {
+    //在course_id这个主题下发布信息
     await mqtt_broker.publish(`${msg.course_id}`, JSON.stringify({
+        //表示该内容为即时通讯
         type: constants.new_message,
+        //信息主体
         payload: msg,
     }));
 }

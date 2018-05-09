@@ -8,6 +8,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+const Constants = require("../constants");
 const router = require('express').Router();
 const models = require('../models/models');
 const TAG = '[Question router]: ';
@@ -16,7 +17,6 @@ const student_auth = require('../auth/auth_middleware').student_auth;
 const common_auth = require('../auth/auth_middleware').common_auth;
 const defaultConfig = require('../config/uploadconfig').defaultConfig;
 const md5 = require('md5');
-const Constants = require('../constants');
 const constants = Constants;
 const isImage = require('../utils/check').isImage;
 const getError = require('../utils/error');
@@ -86,8 +86,16 @@ router.get('', applyErrMiddleware((req, res, next) => __awaiter(this, void 0, vo
     let next_start = 0;
     for (let [idx, q] of questions.entries()) {
         let images = yield getImageNames({ fId: q._id, forT: Constants.ForT_Question });
+        let files = yield models.UploadFile.findAll({
+            where: {
+                forT: Constants.ForT_Question,
+                fId: q._id,
+                fT: Constants.FT_FILE,
+            }
+        });
         let obj = q.toObject();
         obj.images = images;
+        obj.files = files;
         quesitonsWithImage.push(obj);
         if (idx === 0) {
             next_start = q._id + 1;

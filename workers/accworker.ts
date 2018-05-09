@@ -6,13 +6,11 @@ import * as models from '../models/models';
 
 async function monitorAcc() {
     let client = Redis.createClient();
-    client.subscribe('__keyevent@0__:expired');
-
+    client.subscribe('__keyevent@0__:expired');//订阅redis 缓存条目删除事件
     client.on('message', async (channel, message) => {
-        console.log("there is a key expired");
         let key: string = message.toString();
         try {
-            // type:user:id
+            // 取出type:user:id
             let info: Array<string> = key.split(":");
             let type: Number = +(info[0]); let id: Number = +(info[2]);
             let model;
@@ -25,14 +23,14 @@ async function monitorAcc() {
                 }
             });
             if(found){
+                //更新数据库
                 await found.update({
+                    //设置登出，token置空
                     login:false,
                     token:0,
                 })
             };
-
         } catch (e) {
-            
         }
     });
 }

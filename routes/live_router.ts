@@ -23,7 +23,6 @@ LiveRouter.post('',ErrorMW(async (req:Express.Request,res:Express.Response,next:
     if(found){
         throw getError(401,"Already has a live reserved");
     }
-    //todo: check
     //time is milliseconds
     let {title,time}=req.body;
 
@@ -34,11 +33,8 @@ LiveRouter.post('',ErrorMW(async (req:Express.Request,res:Express.Response,next:
      */
     let expire=((+time)+10*60*1000)/1000|0;
     let hash=md5(`/live/course${course_id}-${expire}-${livekey}`);
-    /**
-     * authentication stop here
-     */
+   
     let url=`/live/course${course_id}?sign=${expire}-${hash}`;
-
     let savedLive=await Live.build({
         course_id:course_id,
         teacher_id:auth.id,
@@ -57,7 +53,7 @@ LiveRouter.post('',ErrorMW(async (req:Express.Request,res:Express.Response,next:
     savedLive=savedLive.toJSON();
 
     savedLive.course_name=courseName;
-    mqtt.publish(`${course_id}`,JSON.parse({
+    mqtt.publish(`${course_id}`,JSON.stringify({
         type:Constants.NEW_LIVE_RESERVED,
         payload:savedLive,
     }));

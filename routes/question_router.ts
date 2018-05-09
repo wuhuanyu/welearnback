@@ -105,10 +105,10 @@ router.get('', applyErrMiddleware(async (req, res, next) => {
     for (let [idx, q] of questions.entries()) {
         let images = await getImageNames({ fId: q._id, forT: Constants.ForT_Question });
 
-        let files=await models.File.findAll({
+        let files=await models.UploadFile.findAll({
             where:{
                 forT:Constants.ForT_Question,
-                forId:q._id,
+                fId:q._id,
                 fT:Constants.FT_FILE,
             }
         });

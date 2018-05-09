@@ -102,23 +102,26 @@ module.exports.student_auth = applyEMW(async (req, res, next) => {
  */
 
 module.exports.common_auth = applyEMW(async (req: express.Request, res: express.Response, next: express.NextFunction) => {
-    let authorization: string = req.get('authorization');
+    let authorization: string = req.get('authorization');//获取authorizaiton字段
     if (!authorization) {
         res.set('WWW-Authenticate', 'Basic realm="Authorization Required"');
-        throw getErr(401, 'Authorization Required');
+        throw getErr(401, 'Authorization Required');//如果包含authroization字段，返回错误
     }
-
     else {
         //have not refresh token
         if (!(req.auth)) {
+            //base64解码，并获取usertype，id，token
             let credentials = new Buffer(authorization.split(' ').pop(), 'base64').toString('ascii').split(':');
             let type = +(credentials[0]), id = +(credentials[1]), token = credentials[2];
+            //查询缓存，如果缓存条目不存在，返回存在
             let found = await redis.hgetallAsync(`${type}:user:${id}`);
-            if (!found) throw getErr(403, 'Access Denied');
+            if (!found) throw getErr(403, 'Access Denied')
             else {
                 req.auth={};
                 if (found.token !== token) throw getErr(403, 'Access Denied');
                 else {
+                    //取出相应信息，传入下一个中间件
+                    await redis.expireAsync(`${type}:user:${id}`,30*60);
                     req.auth.id = id;
                     req.auth.name = found.username;
                     req.auth.password = found.password;
@@ -131,7 +134,6 @@ module.exports.common_auth = applyEMW(async (req: express.Request, res: express.
         else{
             next();
         }
-
     }
 
 });
