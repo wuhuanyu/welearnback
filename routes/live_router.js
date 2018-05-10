@@ -51,7 +51,7 @@ LiveRouter.post('', ErrorMW((req, res, next) => __awaiter(this, void 0, void 0, 
     })).name;
     savedLive = savedLive.toJSON();
     savedLive.course_name = courseName;
-    mqtt.publish(`${course_id}`, JSON.parse({
+    mqtt.publish(`${course_id}`, JSON.stringify({
         type: Constants.NEW_LIVE_RESERVED,
         payload: savedLive,
     }));

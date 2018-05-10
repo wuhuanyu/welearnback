@@ -101,6 +101,7 @@ module.exports.common_auth = applyEMW((req, res, next) => __awaiter(this, void 0
                 if (found.token !== token)
                     throw getErr(403, 'Access Denied');
                 else {
+                    yield redis.expireAsync(`${type}:user:${id}`, 30 * 60);
                     req.auth.id = id;
                     req.auth.name = found.username;
                     req.auth.password = found.password;
